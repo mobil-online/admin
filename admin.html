@@ -20,94 +20,136 @@
         <!-- Header -->
         <div class="bg-gray-900 text-white p-5 text-center rounded-b-3xl shadow-lg">
             <h1 class="font-black text-xl text-green-400"><i class="fas fa-user-shield"></i> DASHBOARD ADMIN</h1>
-            <p class="text-xs text-gray-300 mt-1">Pembuat Link Orderan Driver (Rahasia)</p>
+            <p class="text-xs text-gray-300 mt-1">Pusat Kendali Papan Orderan (Realtime)</p>
         </div>
 
         <div class="p-5 mt-2">
             
-            <div class="bg-white rounded-xl shadow-sm p-4 border border-gray-200 mb-6">
-                <label class="text-xs text-gray-500 font-bold uppercase mb-2 block"><i class="fas fa-paste text-blue-500"></i> 1. Paste Pesan Pelanggan Di Sini</label>
-                <p class="text-[10px] text-gray-400 mb-2">Copy pesan WA dari pelanggan, lalu paste ke kotak di bawah ini.</p>
-                <textarea id="boxPaste" rows="7" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700 outline-none focus:border-blue-500" placeholder="Halo Admin, saya pesan KURIR MOBIL...&#10;📍 *Jemput:* ...&#10;🏁 *Tujuan:* ...&#10;..."></textarea>
+            <!-- Kotak Input Orderan -->
+            <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-200 mb-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                <label class="text-xs text-gray-500 font-bold uppercase mb-2 block"><i class="fas fa-paste text-blue-500"></i> 1. Paste Pesan Pelanggan</label>
+                <textarea id="boxPaste" rows="5" class="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-700 outline-none focus:border-blue-500" placeholder="Paste pesan WA dari pelanggan di sini..."></textarea>
                 <button onclick="prosesTeks()" class="w-full mt-3 bg-blue-600 text-white font-bold py-3 rounded-lg shadow hover:bg-blue-700 active:scale-95 transition">
-                    <i class="fas fa-magic"></i> EKSTRAK & BUAT LINK
+                    <i class="fas fa-cloud-upload-alt"></i> TEMPEL KE PAPAN PENGUMUMAN
                 </button>
             </div>
 
-            <!-- Hasil Ekstraksi (Sembunyi sebelum diproses) -->
-            <div id="areaHasil" class="hidden">
-                <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
-                    <h3 class="font-bold text-green-800 text-sm mb-3 border-b border-green-200 pb-2"><i class="fas fa-check-circle"></i> Data Berhasil Dibaca!</h3>
-                    
-                    <div class="grid grid-cols-2 gap-2 mb-2">
-                        <div>
-                            <p class="text-[10px] text-gray-500">Jemput</p>
-                            <p class="text-xs font-bold text-gray-800 truncate" id="resJemput">-</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-500">Tujuan</p>
-                            <p class="text-xs font-bold text-gray-800 truncate" id="resTujuan">-</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-500">Jarak</p>
-                            <p class="text-xs font-bold text-gray-800" id="resJarak">-</p>
-                        </div>
-                        <div>
-                            <p class="text-[10px] text-gray-500">Tarif</p>
-                            <p class="text-xs font-bold text-red-600" id="resTarif">-</p>
-                        </div>
-                    </div>
-                </div>
+            <!-- Tombol Bagikan ke WA -->
+            <button onclick="bagikanKeGrup()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg mb-8">
+                <i class="fab fa-whatsapp text-2xl"></i> SHARE INFO KE GRUP DRIVER
+            </button>
 
-                <button onclick="bagikanKeGrup()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg">
-                    <i class="fab fa-whatsapp text-2xl"></i> SHARE KE GRUP DRIVER
-                </button>
+            <!-- Daftar Orderan Aktif di Database -->
+            <div class="bg-gray-100 rounded-xl p-4 border border-gray-200">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider"><i class="fas fa-list-ul"></i> Orderan Sedang Aktif</h2>
+                    <span class="flex h-3 w-3 relative">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                </div>
+                <p class="text-[10px] text-gray-500 mb-3">Daftar di bawah ini adalah orderan yang sedang tampil di HP seluruh Driver. Hapus jika sudah diambil.</p>
+                
+                <!-- Area ini akan diisi otomatis oleh Firebase -->
+                <div id="daftarOrderan" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat dari database...</p>
+                </div>
             </div>
 
         </div>
     </div>
 
-    <script>
-        let linkJadi = "";
+    <!-- KODE PENGHUBUNG FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        function prosesTeks() {
+        // Kunci Rahasia Anda
+        const firebaseConfig = {
+            apiKey: "AIzaSyD3LNakfEQDlpwp1RC4OBsF6GoEQ934ERo",
+            authDomain: "mobil-online-spps.firebaseapp.com",
+            databaseURL: "https://mobil-online-spps-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "mobil-online-spps",
+            storageBucket: "mobil-online-spps.firebasestorage.app",
+            messagingSenderId: "1050149242293",
+            appId: "1:1050149242293:web:ecbc568efd37e5090445fc"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Membuat fungsi bisa dipanggil oleh tombol HTML
+        window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
+
+        window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
-            
             try {
-                // Mencari data di dalam teks menggunakan pola (Regex)
+                // Mengekstrak tulisan WA
                 let jemput = teks.match(/📍 \*Jemput:\* (.*)/)[1];
                 let tujuan = teks.match(/🏁 \*Tujuan:\* (.*)/)[1];
                 let jarak = teks.match(/🛣 \*Jarak:\* (.*) KM/)[1];
                 let tarifKotor = teks.match(/💰 \*Tarif:\* \*Rp (.*)\*/)[1];
-                
-                // Menghilangkan titik pada angka tarif (misal 27.500 jadi 27500)
                 let tarifAngka = tarifKotor.replace(/\./g, '');
 
-                // Tampilkan hasil bacaan ke layar
-                document.getElementById('resJemput').innerText = jemput;
-                document.getElementById('resTujuan').innerText = tujuan;
-                document.getElementById('resJarak').innerText = jarak + " KM";
-                document.getElementById('resTarif').innerText = "Rp " + tarifKotor;
-
-                // Buat Link Drivernya!
-                let baseUrl = window.location.href.split('?')[0].replace('admin.html', '');
-                if(!baseUrl.endsWith('/')) baseUrl += '/';
-                linkJadi = `${baseUrl}driver.html?j=${encodeURIComponent(jemput)}&t=${encodeURIComponent(tujuan)}&km=${jarak}&rp=${tarifAngka}`;
-
-                document.getElementById('areaHasil').classList.remove('hidden');
-
+                // Menyimpan Data ke Firebase
+                const orderRef = push(ref(db, 'orderan_aktif'));
+                set(orderRef, {
+                    jemput: jemput,
+                    tujuan: tujuan,
+                    jarak: jarak,
+                    tarif: tarifAngka,
+                    waktu: new Date().getTime()
+                }).then(() => {
+                    alert("✅ BERHASIL! Orderan telah ditempel di Database dan masuk ke Papan Pengumuman Driver.");
+                    document.getElementById('boxPaste').value = ""; 
+                }).catch((error) => {
+                    alert("❌ Gagal menyimpan ke database. Cek koneksi internet.");
+                });
             } catch (error) {
-                alert("Gagal membaca teks! Pastikan Anda mem-paste pesan WA dari pelanggan secara utuh tanpa diubah.");
+                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA dari pelanggan secara utuh.");
             }
-        }
+        };
 
-        function bagikanKeGrup() {
-            let teksGrup = `🚨 *ORDERAN BARU MASUK!* 🚨\n\nSiapa cepat dia dapat!\nKlik link di bawah ini untuk melihat detail dan mengambil orderan:\n\n${linkJadi}`;
-            
-            // Ini akan membuka WA agar admin bisa memilih grup driver
-            let urlWA = `https://wa.me/?text=${encodeURIComponent(teksGrup)}`;
-            window.open(urlWA, '_blank');
-        }
+        window.bagikanKeGrup = function() {
+            let teksGrup = `🚨 *ADA ORDERAN BARU, CEK SEKARANG!* 🚨\n\nKlik link tetap ini untuk melihat daftar orderan:\n👇👇👇\n${window.linkDriver}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(teksGrup)}`, '_blank');
+        };
+
+        window.hapusOrderan = function(id) {
+            if(confirm("Apakah Anda yakin orderan ini sudah diambil driver dan ingin dihapus dari Papan?")) {
+                remove(ref(db, 'orderan_aktif/' + id));
+            }
+        };
+
+        // MENDENGARKAN PERUBAHAN DATABASE SECARA REALTIME
+        onValue(ref(db, 'orderan_aktif'), (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('daftarOrderan');
+            container.innerHTML = ''; 
+
+            if (data) {
+                // Jika ada orderan
+                Object.keys(data).forEach(key => {
+                    let order = data[key];
+                    let item = `
+                    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative transition-all">
+                        <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase">📍 Jemput: <span class="text-gray-800 normal-case">${order.jemput}</span></p>
+                        <p class="text-[11px] text-gray-500 font-bold mb-3 uppercase">🏁 Tujuan: <span class="text-gray-800 normal-case">${order.tujuan}</span></p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-2">
+                            <span class="text-sm font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
+                            <button onclick="hapusOrderan('${key}')" class="bg-red-100 text-red-600 px-3 py-1.5 rounded text-[11px] font-bold hover:bg-red-200 active:scale-95 transition">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>`;
+                    container.innerHTML += item;
+                });
+            } else {
+                // Jika kosong
+                container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada orderan aktif. Papan sedang kosong.</p>';
+            }
+        });
     </script>
 </body>
 </html>
