@@ -25,11 +25,14 @@
                 <p class="text-xs text-gray-300 mt-1">Pusat Kendali Mobil Online</p>
             </div>
             <div class="flex border-t border-gray-700">
-                <button onclick="bukaTab('orderan')" id="tabOrderan" class="flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all">
-                    <i class="fas fa-clipboard-list"></i> Papan Order
+                <button onclick="bukaTab('orderan')" id="tabOrderan" class="flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all">
+                    <i class="fas fa-clipboard-list mb-1 block text-lg"></i> Papan
                 </button>
-                <button onclick="bukaTab('laporan')" id="tabLaporan" class="flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all">
-                    <i class="fas fa-chart-line"></i> Laporan
+                <button onclick="bukaTab('laporan')" id="tabLaporan" class="flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all">
+                    <i class="fas fa-chart-line mb-1 block text-lg"></i> Laporan
+                </button>
+                <button onclick="bukaTab('driver')" id="tabDriver" class="flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all">
+                    <i class="fas fa-users mb-1 block text-lg"></i> Driver
                 </button>
             </div>
         </div>
@@ -106,6 +109,52 @@
 
         </div>
 
+        <!-- ========================================== -->
+        <!-- TAB 3: DAFTAR AKUN DRIVER                  -->
+        <!-- ========================================== -->
+        <div id="view-driver" class="p-5 mt-2 hidden">
+            <!-- LIST SEMUA DRIVER -->
+            <div id="driverListContainer">
+                <h2 class="font-bold text-gray-800 mb-4 text-center">Daftar Akun Mitra Driver</h2>
+                <div id="daftarSemuaDriver" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat data driver...</p>
+                </div>
+            </div>
+
+            <!-- DETAIL SATU DRIVER (RIWAYAT KHUSUS) -->
+            <div id="driverDetailContainer" class="hidden">
+                <button onclick="kembaliKeListDriver()" class="mb-4 text-sm font-bold text-blue-600 flex items-center gap-1 hover:text-blue-800 transition bg-blue-50 px-3 py-1.5 rounded-lg">
+                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar
+                </button>
+                
+                <div class="bg-white rounded-xl shadow-sm border border-blue-100 p-4 mb-5 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 opacity-5 text-blue-900"><i class="fas fa-id-card text-8xl"></i></div>
+                    <h2 class="font-black text-lg text-gray-800 relative z-10" id="detNamaDriver">-</h2>
+                    <p class="text-xs font-bold text-gray-500 mb-3 relative z-10" id="detMobilDriver">-</p>
+                    
+                    <div class="flex justify-between items-center border-t border-gray-100 pt-3 mt-1 relative z-10">
+                        <div class="text-center flex-1">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">Total Trip</p>
+                            <p class="font-black text-lg text-blue-600" id="detTotalTrip">0</p>
+                        </div>
+                        <div class="text-center flex-1 border-l border-gray-200">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">Status</p>
+                            <p class="font-bold text-green-500 mt-1 text-sm"><i class="fas fa-check-circle"></i> Aktif</p>
+                        </div>
+                        <div class="text-center flex-1 border-l border-gray-200">
+                            <p class="text-[10px] text-gray-500 uppercase font-bold">Total Setoran</p>
+                            <p class="font-black text-lg text-green-600" id="detTotalSetoran">Rp 0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b border-gray-200 pb-2"><i class="fas fa-route text-blue-500"></i> Riwayat Orderan Supir Ini</h3>
+                <div id="detRiwayatDriver" class="space-y-3">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- KODE FIREBASE -->
@@ -126,19 +175,31 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        let globalDataRiwayat = []; // Variabel untuk menyimpan semua orderan di memori sementara
+        let globalDataDriver = {};  // Variabel untuk menyimpan daftar supir
+
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
 
         window.bukaTab = function(namaTab) {
+            document.getElementById('view-orderan').classList.add('hidden');
+            document.getElementById('view-laporan').classList.add('hidden');
+            document.getElementById('view-driver').classList.add('hidden');
+            
+            document.getElementById('tabOrderan').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+            document.getElementById('tabLaporan').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+            document.getElementById('tabDriver').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+
             if(namaTab === 'orderan') {
                 document.getElementById('view-orderan').classList.remove('hidden');
-                document.getElementById('view-laporan').classList.add('hidden');
-                document.getElementById('tabOrderan').className = "flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
-                document.getElementById('tabLaporan').className = "flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
-            } else {
-                document.getElementById('view-orderan').classList.add('hidden');
+                document.getElementById('tabOrderan').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
+            } else if (namaTab === 'laporan') {
                 document.getElementById('view-laporan').classList.remove('hidden');
-                document.getElementById('tabLaporan').className = "flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
-                document.getElementById('tabOrderan').className = "flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+                document.getElementById('tabLaporan').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
+            } else if (namaTab === 'driver') {
+                document.getElementById('view-driver').classList.remove('hidden');
+                document.getElementById('tabDriver').className = "flex-1 py-2 text-[11px] uppercase tracking-wider font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
+                document.getElementById('driverListContainer').classList.remove('hidden');
+                document.getElementById('driverDetailContainer').classList.add('hidden');
             }
         }
 
@@ -245,6 +306,7 @@
                 });
                 
                 arrRiwayat.sort((a, b) => b.waktu - a.waktu);
+                globalDataRiwayat = arrRiwayat; // Simpan ke global untuk tab Driver
                 
                 // CETAK RIWAYAT TRANSAKSI BAWAH
                 arrRiwayat.forEach(trx => {
@@ -302,6 +364,100 @@
             document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
             document.getElementById('labaBulanan').innerText = "Rp " + labaBulan.toLocaleString('id-ID');
         });
+
+        // BACA DAFTAR DRIVER DARI DATABASE
+        onValue(ref(db, 'daftar_driver'), (snapshot) => {
+            const data = snapshot.val();
+            globalDataDriver = data || {};
+            
+            const container = document.getElementById('daftarSemuaDriver');
+            container.innerHTML = '';
+            
+            if (data) {
+                let driverArray = Object.keys(data).map(k => ({id: k, ...data[k]}));
+                // Urutkan dari yang terbaru mendaftar
+                driverArray.sort((a,b) => b.waktuDaftar - a.waktuDaftar);
+
+                driverArray.forEach(drv => {
+                    let d = drv.waktuDaftar ? new Date(drv.waktuDaftar).toLocaleDateString('id-ID') : '-';
+                    container.innerHTML += `
+                    <div onclick="lihatDetailDriver('${drv.namaLengkap.replace(/'/g, "\\'")}', '${drv.mobil.replace(/'/g, "\\'")}', '${drv.plat.replace(/'/g, "\\'")}')" class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center gap-3 cursor-pointer hover:bg-blue-50 border-l-4 border-l-blue-500 transition">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black shadow-inner">
+                            ${drv.inisial ? drv.inisial.substring(0,2).toUpperCase() : 'DR'}
+                        </div>
+                        <div class="flex-1">
+                            <p class="font-bold text-sm text-gray-800">${drv.namaLengkap || 'Tanpa Nama'}</p>
+                            <p class="text-[10px] text-gray-500 mt-0.5">🚗 ${drv.mobil} • <span class="font-bold uppercase">${drv.plat}</span></p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] text-gray-400">Terdaftar</p>
+                            <p class="text-[10px] font-bold text-gray-600">${d}</p>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs ml-1"></i>
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada driver yang mendaftar.</p>';
+            }
+        });
+
+        // FUNGSI UNTUK MEMBUKA DETAIL ORDERAN TIAP DRIVER
+        window.lihatDetailDriver = function(nama, mobil, plat) {
+            document.getElementById('driverListContainer').classList.add('hidden');
+            document.getElementById('driverDetailContainer').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            document.getElementById('detNamaDriver').innerText = nama;
+            document.getElementById('detMobilDriver').innerText = `🚗 ${mobil} | 🪪 ${plat}`;
+
+            // Saring riwayat khusus driver ini
+            let riwayatDriver = globalDataRiwayat.filter(trx => trx.driverNama === nama);
+            let totalTrip = 0;
+            let totalSetoran = 0;
+
+            const listRiwayat = document.getElementById('detRiwayatDriver');
+            listRiwayat.innerHTML = '';
+
+            if(riwayatDriver.length > 0) {
+                riwayatDriver.forEach(trx => {
+                    if (trx.status !== 'batal') {
+                        totalTrip++;
+                        totalSetoran += (parseInt(trx.potongan) || 0);
+                    }
+                    
+                    let d = new Date(trx.waktu);
+                    let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                    let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200';
+                    let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
+                    let ruteStr = (trx.jemput) + ' ➔ ' + (trx.tujuan);
+
+                    listRiwayat.innerHTML += `
+                    <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1 pr-2">
+                                <p class="text-[10px] text-gray-500 mb-0.5">${wkt}</p>
+                                <p class="text-xs font-semibold text-gray-800 line-clamp-1">${ruteStr}</p>
+                            </div>
+                            <div>${badge}</div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2">
+                            <p class="text-[10px] text-gray-500 font-bold">Tarif: Rp ${Number(trx.tarif).toLocaleString('id-ID')}</p>
+                            <p class="text-[11px] font-black ${trx.status === 'batal' ? 'text-gray-400 line-through' : 'text-green-600'}">Setoran: Rp ${Number(trx.potongan).toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                listRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada riwayat orderan untuk supir ini.</p>';
+            }
+
+            document.getElementById('detTotalTrip').innerText = totalTrip;
+            document.getElementById('detTotalSetoran').innerText = "Rp " + totalSetoran.toLocaleString('id-ID');
+        }
+
+        window.kembaliKeListDriver = function() {
+            document.getElementById('driverListContainer').classList.remove('hidden');
+            document.getElementById('driverDetailContainer').classList.add('hidden');
+        }
     </script>
 </body>
 </html>
