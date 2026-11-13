@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Papan Orderan - Mobil Online</title>
+    <title>Driver - Mobil Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,18 +17,53 @@
 <body>
 
     <div class="app-container pb-10">
+
+        <!-- LAYAR 0: PENDAFTARAN DRIVER BARU -->
+        <div id="layar-auth" class="hidden min-h-screen bg-white px-6 py-10 flex flex-col justify-center">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h1 class="font-black text-2xl text-gray-800 uppercase">Registrasi Driver</h1>
+                <p class="text-xs text-gray-500 mt-1">Lengkapi data kendaraan Anda untuk mulai menerima orderan.</p>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="text-xs font-bold text-gray-500 ml-1">Nama Lengkap (Sesuai KTP)</label>
+                    <input type="text" id="regNama" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Budi Santoso">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 ml-1">Nama Panggilan / Inisial (Tampil di Laporan)</label>
+                    <input type="text" id="regInisial" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Budi">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 ml-1">Jenis Kendaraan & Warna</label>
+                    <input type="text" id="regMobil" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Avanza Putih">
+                </div>
+                <div>
+                    <label class="text-xs font-bold text-gray-500 ml-1">Nomor Plat Polisi</label>
+                    <input type="text" id="regPlat" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-black uppercase outline-none focus:border-blue-500" placeholder="Contoh: DP 1234 XX">
+                </div>
+                
+                <button onclick="simpanPendaftaran()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition mt-4">
+                    <i class="fas fa-check-circle mr-1"></i> SIMPAN & MULAI NARIK
+                </button>
+            </div>
+        </div>
         
         <!-- LAYAR 1: BURSA ORDERAN -->
-        <div id="layar-bursa">
+        <div id="layar-bursa" class="hidden">
             <div class="bg-gray-900 text-white p-5 text-center rounded-b-3xl shadow-lg relative overflow-hidden sticky top-0 z-40">
                 <div class="absolute -right-5 -top-5 opacity-10">
                     <i class="fas fa-car text-[100px]"></i>
                 </div>
-                <div class="relative z-10">
-                    <h1 class="font-black text-xl uppercase tracking-widest text-yellow-400 drop-shadow-md">
-                        <i class="fas fa-satellite-dish animate-pulse"></i> BURSA ORDERAN
-                    </h1>
-                    <p class="text-xs text-gray-300 mt-1">Siapa cepat, dia dapat! Realtime Database.</p>
+                <div class="relative z-10 flex justify-between items-center text-left">
+                    <div>
+                        <h1 class="font-black text-xl uppercase tracking-widest text-yellow-400 drop-shadow-md">BURSA ORDERAN</h1>
+                        <p class="text-xs text-gray-300 mt-1"><i class="fas fa-user-check text-green-400"></i> Halo, <span id="sapaDriver" class="font-bold text-white">Driver</span></p>
+                    </div>
+                    <i class="fas fa-satellite-dish animate-pulse text-2xl text-blue-400"></i>
                 </div>
             </div>
 
@@ -50,7 +85,6 @@
             </div>
 
             <div class="p-5">
-                <!-- SPANDUK PERINGATAN BARU -->
                 <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl mb-5 text-[11px] font-bold text-center shadow-sm animate-pulse">
                     <i class="fas fa-exclamation-triangle mb-1 text-lg block"></i>
                     ANDA TIDAK BISA MELIHAT ORDERAN BARU SEBELUM KLIK TOMBOL "SELESAI" ATAU "CANCEL" DI BAWAH INI!
@@ -61,14 +95,14 @@
                         <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-1">📍 Jemput Penumpang Di:</p>
                         <p class="font-bold text-gray-800 text-sm mb-3" id="aktifJemput">-</p>
                         <button onclick="bukaMaps('jemput')" class="bg-blue-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-blue-700 transition w-full flex items-center justify-center gap-2">
-                            <i class="fas fa-location-arrow"></i> Petunjuk Arah Jemput (Maps)
+                            <i class="fas fa-location-arrow"></i> Petunjuk Arah Jemput
                         </button>
                     </div>
                     <div class="p-4 border-b border-gray-100 bg-red-50">
                         <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider mb-1">🏁 Antar Penumpang Ke:</p>
                         <p class="font-bold text-gray-800 text-sm mb-3" id="aktifTujuan">-</p>
                         <button onclick="bukaMaps('tujuan')" class="bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-red-700 transition w-full flex items-center justify-center gap-2">
-                            <i class="fas fa-map-marked-alt"></i> Petunjuk Arah Antar (Maps)
+                            <i class="fas fa-map-marked-alt"></i> Petunjuk Arah Antar
                         </button>
                     </div>
                 </div>
@@ -97,7 +131,7 @@
             <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all">
                 <div class="bg-yellow-100 p-4 text-center border-b border-yellow-200">
                     <h2 class="font-black text-lg text-yellow-800">🎉 ALHAMDULILLAH SELESAI</h2>
-                    <p class="text-xs text-yellow-700 mt-1">Terima kasih atas kerja keras Anda!</p>
+                    <p class="text-xs text-yellow-700 mt-1" id="qrisSapaan">Terima kasih atas kerja keras Anda!</p>
                 </div>
                 
                 <div class="p-5 text-center">
@@ -106,7 +140,6 @@
                     
                     <div class="bg-gray-100 p-2 rounded-xl mb-4 border border-gray-200 inline-block">
                         <img src="qris.jpg" alt="QRIS Pembayaran" class="w-48 h-auto mx-auto rounded shadow-sm" onerror="this.src='https://via.placeholder.com/300x300?text=Gambar+QRIS+Belum+Diupload'">
-                        <p class="text-[10px] text-gray-500 mt-2">Screenshot QRIS ini untuk membayar</p>
                     </div>
 
                     <button onclick="laporSelesaiWA()" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2">
@@ -118,7 +151,7 @@
 
     </div>
 
-    <!-- KODE PENGHUBUNG FIREBASE -->
+    <!-- KODE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, onValue, get, remove, push, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
@@ -139,26 +172,68 @@
 
         window.formatRupiah = function(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); };
 
-        // MENGGUNAKAN LOCAL STORAGE AGAR TIDAK HILANG SAAT KELUAR BROWSER
+        // SISTEM AKUN & MEMORI LOKAL
+        let profilDriver = JSON.parse(localStorage.getItem('profilDriverMOSP'));
         let orderanAktif = JSON.parse(localStorage.getItem('orderanAktifMOSP')) || { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
 
-        // FUNGSI CEK STATUS SAAT BROWSER DIBUKA
-        window.cekStatusLokal = function() {
-            if (orderanAktif.jemput !== "") {
+        window.cekSistemAuth = function() {
+            if (!profilDriver) {
+                // Tampilkan Layar Pendaftaran
+                document.getElementById('layar-auth').classList.remove('hidden');
                 document.getElementById('layar-bursa').classList.add('hidden');
-                document.getElementById('layar-perjalanan').classList.remove('hidden');
-                document.getElementById('aktifJemput').innerText = orderanAktif.jemput;
-                document.getElementById('aktifTujuan').innerText = orderanAktif.tujuan;
-                document.getElementById('aktifTarif').innerText = window.formatRupiah(orderanAktif.tarif);
-                document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
-            } else {
                 document.getElementById('layar-perjalanan').classList.add('hidden');
-                document.getElementById('layar-bursa').classList.remove('hidden');
+            } else {
+                document.getElementById('layar-auth').classList.add('hidden');
+                document.getElementById('sapaDriver').innerText = profilDriver.inisial;
+                document.getElementById('qrisSapaan').innerText = `Terima kasih, Bapak/Ibu ${profilDriver.inisial}!`;
+                
+                // Jika sudah login, cek apakah dia sedang bawa penumpang atau tidak
+                if (orderanAktif.jemput !== "") {
+                    document.getElementById('layar-bursa').classList.add('hidden');
+                    document.getElementById('layar-perjalanan').classList.remove('hidden');
+                    document.getElementById('aktifJemput').innerText = orderanAktif.jemput;
+                    document.getElementById('aktifTujuan').innerText = orderanAktif.tujuan;
+                    document.getElementById('aktifTarif').innerText = window.formatRupiah(orderanAktif.tarif);
+                    document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
+                } else {
+                    document.getElementById('layar-perjalanan').classList.add('hidden');
+                    document.getElementById('layar-bursa').classList.remove('hidden');
+                }
             }
         };
 
-        // JALANKAN SAAT PERTAMA KALI DIBUKA
-        window.cekStatusLokal();
+        // Simpan Profil
+        window.simpanPendaftaran = function() {
+            let nama = document.getElementById('regNama').value.trim();
+            let inisial = document.getElementById('regInisial').value.trim();
+            let mobil = document.getElementById('regMobil').value.trim();
+            let plat = document.getElementById('regPlat').value.trim().toUpperCase();
+
+            if(!nama || !inisial || !mobil || !plat) {
+                alert("Mohon lengkapi semua data pendaftaran!"); return;
+            }
+
+            profilDriver = {
+                namaLengkap: nama,
+                inisial: inisial,
+                mobil: mobil,
+                plat: plat,
+                waktuDaftar: new Date().getTime()
+            };
+
+            // Simpan permanen di memori HP
+            localStorage.setItem('profilDriverMOSP', JSON.stringify(profilDriver));
+            
+            // Simpan juga ke Database Admin (Opsional, agar admin tahu ada driver daftar)
+            const driverRef = push(ref(db, 'daftar_driver'));
+            set(driverRef, profilDriver);
+
+            alert("Pendaftaran Berhasil! Selamat bekerja.");
+            window.cekSistemAuth();
+        };
+
+        // Jalankan pengecekan layar saat web dibuka
+        window.cekSistemAuth();
 
         window.ambilOrderan = function(idOrder, jemput, tujuan, tarifAngka) {
             const orderRef = ref(db, 'orderan_aktif/' + idOrder);
@@ -172,28 +247,37 @@
                     orderanAktif.tarif = tarifAngka;
                     orderanAktif.potongan = tarifAngka * 0.10;
 
-                    // SIMPAN KE MEMORI HP DRIVER
                     localStorage.setItem('orderanAktifMOSP', JSON.stringify(orderanAktif));
-                    window.cekStatusLokal();
+                    window.cekSistemAuth();
 
-                    let teksDriver = `Bos Admin, orderan ini SAYA YANG AMBIL ya! 🚘\n\n📍 *Jemput:* ${jemput}\n🏁 *Tujuan:* ${tujuan}\n💰 *Tarif:* ${window.formatRupiah(tarifAngka)}\n\nTolong berikan nomor HP penumpangnya bos.`;
+                    // FORMAT PESAN WA YANG DILENGKAPI DATA MOBIL DRIVER (Super Keren!)
+                    let teksDriver = `Bos Admin, orderan ini SAYA YANG AMBIL ya! 🚘
+                    
+📍 *Jemput:* ${jemput}
+🏁 *Tujuan:* ${tujuan}
+💰 *Tarif:* ${window.formatRupiah(tarifAngka)}
+
+👤 *Driver:* ${profilDriver.namaLengkap}
+🚗 *Kendaraan:* ${profilDriver.mobil}
+🪪 *Plat:* ${profilDriver.plat}
+
+Tolong kirimkan nomor WA pelanggan dan sampaikan identitas kendaraan saya di atas kepada penumpang agar mereka mudah mencari. Terima kasih!`;
+                    
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
                 } else {
-                    alert("MOHON MAAF 🙏\nOrderan ini baru saja diambil oleh driver lain. Tetap semangat, tunggu orderan berikutnya!");
+                    alert("MOHON MAAF 🙏\nOrderan ini baru saja diambil oleh driver lain.");
                 }
-            }).catch((error) => { alert("Gangguan sinyal. Gagal mengambil orderan."); });
+            }).catch((error) => { alert("Gangguan sinyal."); });
         };
 
         window.bukaMaps = function(jenis) {
             let lokasi = jenis === 'jemput' ? orderanAktif.jemput : orderanAktif.tujuan;
-            let urlMaps = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lokasi)}`;
-            window.open(urlMaps, '_blank');
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lokasi)}`, '_blank');
         };
 
-        window.bukaModalQRIS = function() {
-            document.getElementById('modalQRIS').classList.remove('hidden');
-        };
+        window.bukaModalQRIS = function() { document.getElementById('modalQRIS').classList.remove('hidden'); };
 
+        // FUNGSI MELAPOR KE DATABASE DENGAN NAMA DRIVER
         window.batalkanOrderanWA = function() {
             if(confirm("Yakin orderan ini dibatalkan oleh penumpang?")) {
                 const laporanRef = push(ref(db, 'laporan_selesai'));
@@ -203,22 +287,21 @@
                     tarif: orderanAktif.tarif,
                     potongan: orderanAktif.potongan,
                     status: 'batal',
+                    driverNama: profilDriver.namaLengkap,
+                    driverInisial: profilDriver.inisial, // MENYELIPKAN NAMA DRIVER
                     waktu: new Date().getTime()
                 }).then(() => {
-                    // HAPUS DARI MEMORI HP KARENA SUDAH LAPOR
                     localStorage.removeItem('orderanAktifMOSP');
                     let ruteBatal = orderanAktif.tujuan;
                     orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
-                    window.cekStatusLokal();
-                    
-                    let teksBatal = `Lapor Bos Admin, orderan DICANCEL oleh penumpang! ❌\n\n📍 Tujuan: ${ruteBatal}\n\nMohon maklum ya bos.`;
+                    window.cekSistemAuth();
+                    let teksBatal = `Lapor Bos Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang! ❌\n(Dari Driver: ${profilDriver.inisial})`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
                 });
             }
         };
 
         window.laporSelesaiWA = function() {
-            // 1. SIMPAN LAPORAN KEUANGAN KE DATABASE
             const laporanRef = push(ref(db, 'laporan_selesai'));
             set(laporanRef, {
                 jemput: orderanAktif.jemput,
@@ -226,22 +309,23 @@
                 tarif: orderanAktif.tarif,
                 potongan: orderanAktif.potongan,
                 status: 'sukses',
+                driverNama: profilDriver.namaLengkap,
+                driverInisial: profilDriver.inisial, // MENYELIPKAN NAMA DRIVER
                 waktu: new Date().getTime()
             }).then(() => {
-                // HAPUS DARI MEMORI HP KARENA SUDAH LAPOR
                 localStorage.removeItem('orderanAktifMOSP');
                 let ruteSukses = orderanAktif.tujuan;
                 let potSukses = orderanAktif.potongan;
                 orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
-                window.cekStatusLokal();
+                window.cekSistemAuth();
                 document.getElementById('modalQRIS').classList.add('hidden');
 
-                // 2. KEMUDIAN BUKA WHATSAPP
-                let teksSelesai = `Lapor Bos Admin, orderan sudah SELESAI diantar! ✅\n\n📍 Tujuan: ${ruteSukses}\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sedang/sudah saya transfer.\n\nTerima kasih bos!`;
+                let teksSelesai = `Lapor Bos Admin, orderan arah ${ruteSukses} sudah SELESAI diantar! ✅\n\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sedang/sudah saya transfer.\n(Dari Driver: ${profilDriver.inisial})`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
             });
         };
 
+        // BURSA ORDERAN REALTIME
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderanDriver');
@@ -249,12 +333,10 @@
 
             if (data) {
                 const daftarKeys = Object.keys(data).reverse(); 
-
                 daftarKeys.forEach(key => {
                     let order = data[key];
                     let tarifAngka = parseInt(order.tarif);
-                    let potonganAdmin = tarifAngka * 0.10;
-                    let bersihDriver = tarifAngka - potonganAdmin;
+                    let bersihDriver = tarifAngka - (tarifAngka * 0.10);
 
                     let item = `
                     <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
@@ -274,33 +356,20 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div class="bg-[#fefce8] p-4">
-                            <div class="flex justify-between items-center mb-2">
-                                <span class="text-[11px] font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded">Potongan 10%</span>
-                                <span class="text-sm font-bold text-red-500">- ${window.formatRupiah(potonganAdmin)}</span>
-                            </div>
-                            <div class="flex justify-between items-center pt-2 border-t border-yellow-200 border-dashed">
-                                <span class="text-xs font-bold text-green-700 uppercase">Bersih Driver</span>
-                                <span class="text-lg font-black text-green-600">${window.formatRupiah(bersihDriver)}</span>
-                            </div>
+                        <div class="bg-[#fefce8] p-4 flex justify-between items-center">
+                            <span class="text-xs font-bold text-green-700 uppercase">Bersih Driver</span>
+                            <span class="text-xl font-black text-green-600">${window.formatRupiah(bersihDriver)}</span>
                         </div>
-
                         <div class="p-3 bg-gray-50">
-                            <button onclick="ambilOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2">
-                                <i class="fab fa-whatsapp text-xl"></i> AMBIL ORDERAN INI
+                            <button onclick="ambilOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition-all">
+                                AMBIL ORDERAN INI
                             </button>
                         </div>
                     </div>`;
                     container.innerHTML += item;
                 });
             } else {
-                container.innerHTML = `
-                <div class="text-center mt-12 bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
-                    <i class="fas fa-mug-hot text-5xl text-gray-300 mb-4 block"></i>
-                    <h3 class="font-bold text-gray-700 text-lg">Belum Ada Orderan</h3>
-                    <p class="text-xs text-gray-500 mt-2">Silakan bersantai sejenak. Jika ada orderan baru, akan langsung muncul di sini otomatis.</p>
-                </div>`;
+                container.innerHTML = `<div class="text-center mt-12 bg-white p-8 rounded-2xl shadow-sm"><i class="fas fa-mug-hot text-5xl text-gray-300 mb-4 block"></i><h3 class="font-bold text-gray-700 text-lg">Belum Ada Orderan</h3></div>`;
             }
         });
     </script>
