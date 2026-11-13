@@ -38,7 +38,6 @@
         <!-- TAB 1: PAPAN ORDERAN                       -->
         <!-- ========================================== -->
         <div id="view-orderan" class="p-5 mt-2">
-            
             <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-200 mb-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                 <label class="text-xs text-gray-500 font-bold uppercase mb-2 block"><i class="fas fa-paste text-blue-500"></i> 1. Paste Pesan Pelanggan</label>
@@ -67,64 +66,41 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- TAB 2: LAPORAN KEUANGAN                    -->
+        <!-- TAB 2: LAPORAN KEUANGAN & KINERJA DRIVER   -->
         <!-- ========================================== -->
         <div id="view-laporan" class="p-5 mt-2 hidden">
+            
             <h2 class="font-bold text-gray-800 mb-4 text-center">Rekap Pendapatan Otomatis</h2>
 
-            <!-- KOTAK HARIAN -->
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 mb-4">
+            <!-- KOTAK BULANAN (Disatukan biar rapi) -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-yellow-500 p-4 mb-6">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h3 class="font-bold text-blue-600 text-sm uppercase">HARI INI</h3>
-                    <span class="text-[10px] text-gray-400" id="tglHariIni">-</span>
-                </div>
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs text-gray-500">Total Omzet:</span>
-                    <span class="text-sm font-bold text-gray-800" id="omzetHarian">Rp 0</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
-                    <span class="text-lg font-black text-green-600" id="labaHarian">Rp 0</span>
-                </div>
-            </div>
-
-            <!-- KOTAK BULANAN -->
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-yellow-500 p-4 mb-4">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h3 class="font-bold text-yellow-600 text-sm uppercase">BULAN INI</h3>
+                    <h3 class="font-bold text-yellow-600 text-sm uppercase">OMZET BULAN INI</h3>
                     <span class="text-[10px] text-gray-400" id="tglBulanIni">-</span>
                 </div>
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs text-gray-500">Total Omzet:</span>
+                    <span class="text-xs text-gray-500">Total Perputaran Uang:</span>
                     <span class="text-sm font-bold text-gray-800" id="omzetBulanan">Rp 0</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
+                    <span class="text-xs font-bold text-green-600">Laba Bersih Admin (10%):</span>
                     <span class="text-lg font-black text-green-600" id="labaBulanan">Rp 0</span>
                 </div>
             </div>
 
-            <!-- KOTAK TAHUNAN -->
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4">
-                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h3 class="font-bold text-purple-600 text-sm uppercase">TAHUN INI</h3>
-                    <span class="text-[10px] text-gray-400" id="tglTahunIni">-</span>
-                </div>
-                <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs text-gray-500">Total Omzet:</span>
-                    <span class="text-sm font-bold text-gray-800" id="omzetTahunan">Rp 0</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
-                    <span class="text-lg font-black text-green-600" id="labaTahunan">Rp 0</span>
+            <!-- LAPORAN PER DRIVER -->
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-trophy text-yellow-500"></i> Kinerja Driver (Bulan Ini)</h3>
+                <div id="kinerjaDriver" class="space-y-3">
+                    <!-- List Driver akan diinjeksi via JS -->
                 </div>
             </div>
 
-            <!-- RIWAYAT TRANSAKSI (BISA DIHAPUS) -->
-            <div class="mt-6">
-                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-history text-gray-500"></i> Riwayat Orderan Selesai / Batal</h3>
+            <!-- RIWAYAT TRANSAKSI -->
+            <div>
+                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-history text-gray-500"></i> Semua Riwayat Orderan</h3>
                 <div id="riwayatLaporan" class="space-y-3">
-                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat riwayat...</p>
+                    <!-- Riwayat orderan diinjeksi via JS -->
                 </div>
             </div>
 
@@ -132,7 +108,7 @@
 
     </div>
 
-    <!-- KODE PENGHUBUNG FIREBASE -->
+    <!-- KODE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
@@ -152,7 +128,6 @@
 
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
 
-        // Navigasi Tab
         window.bukaTab = function(namaTab) {
             if(namaTab === 'orderan') {
                 document.getElementById('view-orderan').classList.remove('hidden');
@@ -170,7 +145,6 @@
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
             try {
-                // Mesin Pintar Anti-Emoji
                 let jemput = teks.match(/\*Jemput:\*\s*(.*)/)[1];
                 let tujuan = teks.match(/\*Tujuan:\*\s*(.*)/)[1];
                 let jarak = teks.match(/\*Jarak:\*\s*(.*)\s*KM/i)[1];
@@ -188,42 +162,31 @@
                 }).then(() => {
                     alert("✅ BERHASIL! Orderan telah masuk ke Papan Pengumuman.");
                     document.getElementById('boxPaste').value = ""; 
-                }).catch((error) => {
-                    alert("❌ Gagal menyimpan. Cek koneksi internet.");
-                });
-            } catch (error) {
-                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA secara utuh.");
-            }
+                }).catch((error) => { alert("❌ Gagal menyimpan."); });
+            } catch (error) { alert("❌ Gagal membaca teks! Pastikan format utuh dari Web Pelanggan."); }
         };
 
         window.bagikanKeGrup = function() {
-            let teksGrup = `🚨 *ADA ORDERAN BARU, CEK SEKARANG!* 🚨\n\nKlik link tetap ini untuk melihat daftar orderan:\n👇👇👇\n${window.linkDriver}`;
+            let teksGrup = `🚨 *ADA ORDERAN BARU, CEK SEKARANG!* 🚨\n\nKlik link di bawah ini:\n👇👇👇\n${window.linkDriver}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(teksGrup)}`, '_blank');
         };
 
         window.hapusOrderan = function(id) {
-            if(confirm("Tarik orderan ini secara manual dari sistem?")) {
-                remove(ref(db, 'orderan_aktif/' + id));
-            }
+            if(confirm("Tarik orderan ini secara manual dari sistem?")) remove(ref(db, 'orderan_aktif/' + id));
         };
-
         window.hapusLaporan = function(id) {
-            if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) {
-                remove(ref(db, 'laporan_selesai/' + id));
-            }
+            if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) remove(ref(db, 'laporan_selesai/' + id));
         };
 
-        // BACA PAPAN ORDERAN (REALTIME)
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderan');
             container.innerHTML = ''; 
-
             if (data) {
                 Object.keys(data).forEach(key => {
                     let order = data[key];
-                    let item = `
-                    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative transition-all">
+                    container.innerHTML += `
+                    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative">
                         <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase">📍 Jemput: <span class="text-gray-800 normal-case">${order.jemput}</span></p>
                         <p class="text-[11px] text-gray-500 font-bold mb-3 uppercase">🏁 Tujuan: <span class="text-gray-800 normal-case">${order.tujuan}</span></p>
                         <div class="flex justify-between items-center border-t border-gray-100 pt-2">
@@ -233,34 +196,27 @@
                             </button>
                         </div>
                     </div>`;
-                    container.innerHTML += item;
                 });
-            } else {
-                container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>';
-            }
+            } else { container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>'; }
         });
 
-        // BACA LAPORAN KEUANGAN (REALTIME)
+        // BACA LAPORAN & KALKULASI DRIVER
         onValue(ref(db, 'laporan_selesai'), (snapshot) => {
             const data = snapshot.val();
-            
-            let omzetHari = 0, labaHari = 0;
             let omzetBulan = 0, labaBulan = 0;
-            let omzetTahun = 0, labaTahun = 0;
-
+            let statsDriver = {}; // Menyimpan rapor per driver
+            
             const now = new Date();
-            const tglHariIni = now.toLocaleDateString('id-ID'); // contoh: "14/11/2026"
             const blnIni = now.getMonth();
             const thnIni = now.getFullYear();
 
-            // Set tulisan tanggal di UI
-            document.getElementById('tglHariIni').innerText = tglHariIni;
             document.getElementById('tglBulanIni').innerText = now.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            document.getElementById('tglTahunIni').innerText = thnIni;
             
             const listRiwayat = document.getElementById('riwayatLaporan');
+            const listKinerja = document.getElementById('kinerjaDriver');
             listRiwayat.innerHTML = '';
-            let adaRiwayat = false;
+            listKinerja.innerHTML = '';
+            
             let arrRiwayat = [];
 
             if (data) {
@@ -269,85 +225,82 @@
                     trx.id = key;
                     arrRiwayat.push(trx);
                     
-                    if (trx.status !== 'batal') { // Hitung yang sukses saja ke pembukuan
+                    if (trx.status !== 'batal') {
                         let d = new Date(trx.waktu);
-                        let tglTrx = d.toLocaleDateString('id-ID');
-                        let blnTrx = d.getMonth();
-                        let thnTrx = d.getFullYear();
-
                         let tarif = parseInt(trx.tarif) || 0;
                         let potongan = parseInt(trx.potongan) || 0;
 
-                        // Hitung Tahunan
-                        if(thnTrx === thnIni) {
-                            omzetTahun += tarif; labaTahun += potongan;
-                        }
-                        // Hitung Bulanan
-                        if(thnTrx === thnIni && blnTrx === blnIni) {
-                            omzetBulan += tarif; labaBulan += potongan;
-                        }
-                        // Hitung Harian
-                        if(tglTrx === tglHariIni) {
-                            omzetHari += tarif; labaHari += potongan;
+                        if(d.getFullYear() === thnIni && d.getMonth() === blnIni) {
+                            omzetBulan += tarif; 
+                            labaBulan += potongan;
+                            
+                            // Hitung Rapor Perorangan Driver
+                            let namaDrv = trx.driverInisial || "Driver Lama (Tanpa Nama)";
+                            if(!statsDriver[namaDrv]) statsDriver[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
+                            
+                            statsDriver[namaDrv].totalTrip += 1;
+                            statsDriver[namaDrv].setoranAdmin += potongan;
                         }
                     }
                 });
                 
-                // Urutkan riwayat dari yang terbaru ke paling lama
                 arrRiwayat.sort((a, b) => b.waktu - a.waktu);
                 
+                // CETAK RIWAYAT TRANSAKSI BAWAH
                 arrRiwayat.forEach(trx => {
-                    adaRiwayat = true;
                     let d = new Date(trx.waktu);
-                    let waktuStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                    
+                    let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
                     let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200';
-                    let statusBadge = trx.status === 'batal' 
-                        ? '<span class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' 
-                        : '<span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
-                    
-                    let labaText = trx.status === 'batal'
-                        ? '<span class="text-xs font-bold text-gray-400 line-through">Rp ' + Number(trx.potongan || 0).toLocaleString('id-ID') + '</span>'
-                        : '<span class="text-sm font-black text-green-600">+ Rp ' + Number(trx.potongan || 0).toLocaleString('id-ID') + '</span>';
-                        
-                    let ruteStr = (trx.jemput || 'Order Lama') + ' ➔ ' + (trx.tujuan || 'Selesai');
+                    let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
+                    let ruteStr = (trx.jemput) + ' ➔ ' + (trx.tujuan);
+                    let nmDrv = trx.driverInisial || "Anonim";
 
-                    let item = `
+                    listRiwayat.innerHTML += `
                     <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
                         <div class="flex justify-between items-start mb-2">
                             <div class="flex-1 pr-2">
-                                <p class="text-[10px] text-gray-500 mb-1">${waktuStr}</p>
+                                <p class="text-[10px] text-gray-500 mb-0.5">${wkt} • <span class="font-bold text-blue-600">🚗 ${nmDrv}</span></p>
                                 <p class="text-xs font-semibold text-gray-800 line-clamp-1">${ruteStr}</p>
                             </div>
-                            <div>${statusBadge}</div>
+                            <div>${badge}</div>
                         </div>
                         <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2">
-                            <div>
-                                <p class="text-[9px] text-gray-500">Laba Bersih:</p>
-                                ${labaText}
-                            </div>
-                            <button onclick="hapusLaporan('${trx.id}')" class="text-[10px] bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 px-2 py-1.5 rounded font-bold transition">
-                                <i class="fas fa-trash-alt"></i> Hapus
-                            </button>
+                            <p class="text-[10px] text-gray-500 font-bold">Tarif: Rp ${Number(trx.tarif).toLocaleString('id-ID')}</p>
+                            <button onclick="hapusLaporan('${trx.id}')" class="text-[10px] text-gray-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
                         </div>
                     </div>`;
-                    listRiwayat.innerHTML += item;
                 });
-            }
 
-            if(!adaRiwayat) {
+                // CETAK KINERJA DRIVER
+                let adaDriverBulanIni = false;
+                Object.keys(statsDriver).sort((a,b) => statsDriver[b].totalTrip - statsDriver[a].totalTrip).forEach(nama => {
+                    adaDriverBulanIni = true;
+                    let stat = statsDriver[nama];
+                    listKinerja.innerHTML += `
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">${nama.substring(0,2).toUpperCase()}</div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">${nama}</p>
+                                <p class="text-[10px] text-gray-500">${stat.totalTrip} Trip Sukses</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] text-gray-500">Setoran ke Admin</p>
+                            <p class="font-black text-blue-600 text-sm">Rp ${stat.setoranAdmin.toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>`;
+                });
+                
+                if(!adaDriverBulanIni) listKinerja.innerHTML = '<p class="text-xs text-gray-400 italic">Belum ada orderan sukses bulan ini.</p>';
+                
+            } else {
                 listRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada riwayat transaksi.</p>';
+                listKinerja.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada data driver.</p>';
             }
 
-            // Tampilkan ke layar
-            document.getElementById('omzetHarian').innerText = "Rp " + omzetHari.toLocaleString('id-ID');
-            document.getElementById('labaHarian').innerText = "Rp " + labaHari.toLocaleString('id-ID');
-            
             document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
             document.getElementById('labaBulanan').innerText = "Rp " + labaBulan.toLocaleString('id-ID');
-
-            document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahun.toLocaleString('id-ID');
-            document.getElementById('labaTahunan').innerText = "Rp " + labaTahun.toLocaleString('id-ID');
         });
     </script>
 </body>
