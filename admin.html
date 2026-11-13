@@ -83,17 +83,18 @@
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
             try {
-                let jemput = teks.match(/📍 \*Jemput:\* (.*)/)[1];
-                let tujuan = teks.match(/🏁 \*Tujuan:\* (.*)/)[1];
-                let jarak = teks.match(/🛣 \*Jarak:\* (.*) KM/)[1];
-                let tarifKotor = teks.match(/💰 \*Tarif:\* \*Rp (.*)\*/)[1];
-                let tarifAngka = tarifKotor.replace(/\./g, '');
+                // RUMUS BARU: KEBAL EMOJI ERROR (Mengabaikan karakter di depan bintang)
+                let jemput = teks.match(/\*Jemput:\*\s*(.*)/)[1];
+                let tujuan = teks.match(/\*Tujuan:\*\s*(.*)/)[1];
+                let jarak = teks.match(/\*Jarak:\*\s*(.*)\s*KM/i)[1]; // Tambah 'i' agar kebal huruf besar/kecil
+                let tarifKotor = teks.match(/\*Tarif:\*\s*\*Rp\s*(.*)\*/)[1];
+                let tarifAngka = tarifKotor.replace(/\./g, '').trim();
 
                 const orderRef = push(ref(db, 'orderan_aktif'));
                 set(orderRef, {
-                    jemput: jemput,
-                    tujuan: tujuan,
-                    jarak: jarak,
+                    jemput: jemput.trim(),
+                    tujuan: tujuan.trim(),
+                    jarak: jarak.trim(),
                     tarif: tarifAngka,
                     status: 'menunggu',
                     waktu: new Date().getTime()
@@ -104,7 +105,7 @@
                     alert("❌ Gagal menyimpan ke database. Cek koneksi internet.");
                 });
             } catch (error) {
-                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA dari pelanggan secara utuh.");
+                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA dari pelanggan secara utuh.\n(Pesan error internal: " + error.message + ")");
             }
         };
 
