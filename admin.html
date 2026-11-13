@@ -11,21 +11,34 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .app-container { max-width: 480px; margin: 0 auto; background-color: #f8fafc; min-height: 100vh; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
     <div class="app-container pb-10">
         
-        <!-- Header -->
-        <div class="bg-gray-900 text-white p-5 text-center rounded-b-3xl shadow-lg">
-            <h1 class="font-black text-xl text-green-400"><i class="fas fa-user-shield"></i> DASHBOARD ADMIN</h1>
-            <p class="text-xs text-gray-300 mt-1">Pusat Kendali Papan Orderan (Realtime)</p>
+        <!-- Header & Navigasi Tab -->
+        <div class="bg-gray-900 text-white rounded-b-3xl shadow-lg overflow-hidden sticky top-0 z-50">
+            <div class="p-5 text-center">
+                <h1 class="font-black text-xl text-green-400"><i class="fas fa-user-shield"></i> DASHBOARD ADMIN</h1>
+                <p class="text-xs text-gray-300 mt-1">Pusat Kendali Mobil Online</p>
+            </div>
+            <div class="flex border-t border-gray-700">
+                <button onclick="bukaTab('orderan')" id="tabOrderan" class="flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all">
+                    <i class="fas fa-clipboard-list"></i> Papan Order
+                </button>
+                <button onclick="bukaTab('laporan')" id="tabLaporan" class="flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all">
+                    <i class="fas fa-chart-line"></i> Laporan
+                </button>
+            </div>
         </div>
 
-        <div class="p-5 mt-2">
+        <!-- ========================================== -->
+        <!-- TAB 1: PAPAN ORDERAN                       -->
+        <!-- ========================================== -->
+        <div id="view-orderan" class="p-5 mt-2">
             
-            <!-- Kotak Input Orderan -->
             <div class="bg-white rounded-xl shadow-sm p-4 border border-blue-200 mb-6 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
                 <label class="text-xs text-gray-500 font-bold uppercase mb-2 block"><i class="fas fa-paste text-blue-500"></i> 1. Paste Pesan Pelanggan</label>
@@ -35,12 +48,10 @@
                 </button>
             </div>
 
-            <!-- Tombol Bagikan ke WA -->
             <button onclick="bagikanKeGrup()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg mb-8">
                 <i class="fab fa-whatsapp text-2xl"></i> SHARE INFO KE GRUP DRIVER
             </button>
 
-            <!-- Daftar Orderan Aktif di Database -->
             <div class="bg-gray-100 rounded-xl p-4 border border-gray-200">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider"><i class="fas fa-list-ul"></i> Menunggu Driver (Aktif)</h2>
@@ -49,14 +60,76 @@
                       <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
                     </span>
                 </div>
-                <p class="text-[10px] text-gray-500 mb-3">Daftar di bawah ini sedang diperebutkan di HP seluruh Driver. Akan otomatis hilang jika ada yang mengambil.</p>
-                
                 <div id="daftarOrderan" class="space-y-3">
                     <p class="text-xs text-gray-400 text-center italic py-4">Memuat dari database...</p>
                 </div>
             </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: LAPORAN KEUANGAN                    -->
+        <!-- ========================================== -->
+        <div id="view-laporan" class="p-5 mt-2 hidden">
+            <h2 class="font-bold text-gray-800 mb-4 text-center">Rekap Pendapatan Otomatis</h2>
+
+            <!-- KOTAK HARIAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 mb-4">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h3 class="font-bold text-blue-600 text-sm uppercase">HARI INI</h3>
+                    <span class="text-[10px] text-gray-400" id="tglHariIni">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-500">Total Omzet:</span>
+                    <span class="text-sm font-bold text-gray-800" id="omzetHarian">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
+                    <span class="text-lg font-black text-green-600" id="labaHarian">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- KOTAK BULANAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-yellow-500 p-4 mb-4">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h3 class="font-bold text-yellow-600 text-sm uppercase">BULAN INI</h3>
+                    <span class="text-[10px] text-gray-400" id="tglBulanIni">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-500">Total Omzet:</span>
+                    <span class="text-sm font-bold text-gray-800" id="omzetBulanan">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
+                    <span class="text-lg font-black text-green-600" id="labaBulanan">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- KOTAK TAHUNAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h3 class="font-bold text-purple-600 text-sm uppercase">TAHUN INI</h3>
+                    <span class="text-[10px] text-gray-400" id="tglTahunIni">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-500">Total Omzet:</span>
+                    <span class="text-sm font-bold text-gray-800" id="omzetTahunan">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-green-600">Bersih Admin (10%):</span>
+                    <span class="text-lg font-black text-green-600" id="labaTahunan">Rp 0</span>
+                </div>
+            </div>
+
+            <!-- RIWAYAT TRANSAKSI (BISA DIHAPUS) -->
+            <div class="mt-6">
+                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-history text-gray-500"></i> Riwayat Orderan Selesai / Batal</h3>
+                <div id="riwayatLaporan" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat riwayat...</p>
+                </div>
+            </div>
 
         </div>
+
     </div>
 
     <!-- KODE PENGHUBUNG FIREBASE -->
@@ -64,7 +137,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
-        // Kunci Rahasia Anda
         const firebaseConfig = {
             apiKey: "AIzaSyD3LNakfEQDlpwp1RC4OBsF6GoEQ934ERo",
             authDomain: "mobil-online-spps.firebaseapp.com",
@@ -80,13 +152,28 @@
 
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
 
+        // Navigasi Tab
+        window.bukaTab = function(namaTab) {
+            if(namaTab === 'orderan') {
+                document.getElementById('view-orderan').classList.remove('hidden');
+                document.getElementById('view-laporan').classList.add('hidden');
+                document.getElementById('tabOrderan').className = "flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
+                document.getElementById('tabLaporan').className = "flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+            } else {
+                document.getElementById('view-orderan').classList.add('hidden');
+                document.getElementById('view-laporan').classList.remove('hidden');
+                document.getElementById('tabLaporan').className = "flex-1 py-3 text-sm font-bold bg-gray-800 text-white border-b-4 border-blue-500 transition-all";
+                document.getElementById('tabOrderan').className = "flex-1 py-3 text-sm font-bold bg-gray-900 text-gray-400 border-b-4 border-transparent hover:text-white transition-all";
+            }
+        }
+
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
             try {
-                // RUMUS BARU: KEBAL EMOJI ERROR (Mengabaikan karakter di depan bintang)
+                // Mesin Pintar Anti-Emoji
                 let jemput = teks.match(/\*Jemput:\*\s*(.*)/)[1];
                 let tujuan = teks.match(/\*Tujuan:\*\s*(.*)/)[1];
-                let jarak = teks.match(/\*Jarak:\*\s*(.*)\s*KM/i)[1]; // Tambah 'i' agar kebal huruf besar/kecil
+                let jarak = teks.match(/\*Jarak:\*\s*(.*)\s*KM/i)[1];
                 let tarifKotor = teks.match(/\*Tarif:\*\s*\*Rp\s*(.*)\*/)[1];
                 let tarifAngka = tarifKotor.replace(/\./g, '').trim();
 
@@ -99,13 +186,13 @@
                     status: 'menunggu',
                     waktu: new Date().getTime()
                 }).then(() => {
-                    alert("✅ BERHASIL! Orderan telah masuk ke Papan Pengumuman Driver.");
+                    alert("✅ BERHASIL! Orderan telah masuk ke Papan Pengumuman.");
                     document.getElementById('boxPaste').value = ""; 
                 }).catch((error) => {
-                    alert("❌ Gagal menyimpan ke database. Cek koneksi internet.");
+                    alert("❌ Gagal menyimpan. Cek koneksi internet.");
                 });
             } catch (error) {
-                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA dari pelanggan secara utuh.\n(Pesan error internal: " + error.message + ")");
+                alert("❌ Gagal membaca teks! Pastikan Anda mem-paste pesan WA secara utuh.");
             }
         };
 
@@ -115,11 +202,18 @@
         };
 
         window.hapusOrderan = function(id) {
-            if(confirm("Hapus orderan ini secara manual dari sistem?")) {
+            if(confirm("Tarik orderan ini secara manual dari sistem?")) {
                 remove(ref(db, 'orderan_aktif/' + id));
             }
         };
 
+        window.hapusLaporan = function(id) {
+            if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) {
+                remove(ref(db, 'laporan_selesai/' + id));
+            }
+        };
+
+        // BACA PAPAN ORDERAN (REALTIME)
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderan');
@@ -144,6 +238,116 @@
             } else {
                 container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>';
             }
+        });
+
+        // BACA LAPORAN KEUANGAN (REALTIME)
+        onValue(ref(db, 'laporan_selesai'), (snapshot) => {
+            const data = snapshot.val();
+            
+            let omzetHari = 0, labaHari = 0;
+            let omzetBulan = 0, labaBulan = 0;
+            let omzetTahun = 0, labaTahun = 0;
+
+            const now = new Date();
+            const tglHariIni = now.toLocaleDateString('id-ID'); // contoh: "14/11/2026"
+            const blnIni = now.getMonth();
+            const thnIni = now.getFullYear();
+
+            // Set tulisan tanggal di UI
+            document.getElementById('tglHariIni').innerText = tglHariIni;
+            document.getElementById('tglBulanIni').innerText = now.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            document.getElementById('tglTahunIni').innerText = thnIni;
+            
+            const listRiwayat = document.getElementById('riwayatLaporan');
+            listRiwayat.innerHTML = '';
+            let adaRiwayat = false;
+            let arrRiwayat = [];
+
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    let trx = data[key];
+                    trx.id = key;
+                    arrRiwayat.push(trx);
+                    
+                    if (trx.status !== 'batal') { // Hitung yang sukses saja ke pembukuan
+                        let d = new Date(trx.waktu);
+                        let tglTrx = d.toLocaleDateString('id-ID');
+                        let blnTrx = d.getMonth();
+                        let thnTrx = d.getFullYear();
+
+                        let tarif = parseInt(trx.tarif) || 0;
+                        let potongan = parseInt(trx.potongan) || 0;
+
+                        // Hitung Tahunan
+                        if(thnTrx === thnIni) {
+                            omzetTahun += tarif; labaTahun += potongan;
+                        }
+                        // Hitung Bulanan
+                        if(thnTrx === thnIni && blnTrx === blnIni) {
+                            omzetBulan += tarif; labaBulan += potongan;
+                        }
+                        // Hitung Harian
+                        if(tglTrx === tglHariIni) {
+                            omzetHari += tarif; labaHari += potongan;
+                        }
+                    }
+                });
+                
+                // Urutkan riwayat dari yang terbaru ke paling lama
+                arrRiwayat.sort((a, b) => b.waktu - a.waktu);
+                
+                arrRiwayat.forEach(trx => {
+                    adaRiwayat = true;
+                    let d = new Date(trx.waktu);
+                    let waktuStr = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                    
+                    let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200';
+                    let statusBadge = trx.status === 'batal' 
+                        ? '<span class="text-[10px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' 
+                        : '<span class="text-[10px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
+                    
+                    let labaText = trx.status === 'batal'
+                        ? '<span class="text-xs font-bold text-gray-400 line-through">Rp ' + Number(trx.potongan || 0).toLocaleString('id-ID') + '</span>'
+                        : '<span class="text-sm font-black text-green-600">+ Rp ' + Number(trx.potongan || 0).toLocaleString('id-ID') + '</span>';
+                        
+                    let ruteStr = (trx.jemput || 'Order Lama') + ' ➔ ' + (trx.tujuan || 'Selesai');
+
+                    let item = `
+                    <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1 pr-2">
+                                <p class="text-[10px] text-gray-500 mb-1">${waktuStr}</p>
+                                <p class="text-xs font-semibold text-gray-800 line-clamp-1">${ruteStr}</p>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2">
+                            <div>
+                                <p class="text-[9px] text-gray-500">Laba Bersih:</p>
+                                ${labaText}
+                            </div>
+                            <button onclick="hapusLaporan('${trx.id}')" class="text-[10px] bg-gray-100 text-gray-600 hover:bg-red-100 hover:text-red-600 px-2 py-1.5 rounded font-bold transition">
+                                <i class="fas fa-trash-alt"></i> Hapus
+                            </button>
+                        </div>
+                    </div>`;
+                    listRiwayat.innerHTML += item;
+                });
+            }
+
+            if(!adaRiwayat) {
+                listRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada riwayat transaksi.</p>';
+            }
+
+            // Tampilkan ke layar
+            document.getElementById('omzetHarian').innerText = "Rp " + omzetHari.toLocaleString('id-ID');
+            document.getElementById('labaHarian').innerText = "Rp " + labaHari.toLocaleString('id-ID');
+            
+            document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
+            document.getElementById('labaBulanan').innerText = "Rp " + labaBulan.toLocaleString('id-ID');
+
+            document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahun.toLocaleString('id-ID');
+            document.getElementById('labaTahunan').innerText = "Rp " + labaTahun.toLocaleString('id-ID');
         });
     </script>
 </body>
