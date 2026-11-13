@@ -644,7 +644,7 @@
 
             // Kumpulkan data orderan SUKSES di BULAN INI saja
             globalDataRiwayat.filter(trx => new Date(trx.waktu).getMonth() === now.getMonth() && new Date(trx.waktu).getFullYear() === now.getFullYear() && trx.status !== 'batal').forEach(trx => {
-                let namaDrv = trx.driverNama || "Anonim";
+                let namaDrv = trx.driverInisial || trx.driverNama || "Anonim";
                 if(!stats[namaDrv]) stats[namaDrv] = { totalTrip: 0, omzetKotor: 0 };
                 stats[namaDrv].totalTrip += 1;
                 // PENTING: Hanya ambil TARIF kotor, abaikan potongan
