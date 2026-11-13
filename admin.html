@@ -73,27 +73,71 @@
         <!-- ========================================== -->
         <div id="view-laporan" class="p-5 mt-2 hidden">
             
-            <h2 class="font-bold text-gray-800 mb-4 text-center">Rekap Pendapatan Otomatis</h2>
+            <h2 class="font-bold text-gray-800 mb-4 text-center">Dasbor Keuangan Admin</h2>
 
-            <!-- KOTAK BULANAN (Disatukan biar rapi) -->
-            <div class="bg-white rounded-xl shadow-sm border-l-4 border-yellow-500 p-4 mb-6">
+            <!-- KOTAK HARIAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-green-500 p-4 mb-3">
                 <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
-                    <h3 class="font-bold text-yellow-600 text-sm uppercase">OMZET BULAN INI</h3>
+                    <h3 class="font-bold text-green-600 text-xs uppercase">HARI INI</h3>
+                    <span class="text-[10px] text-gray-400" id="tglHariIni">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-500">Omzet Kotor:</span>
+                    <span class="text-sm font-bold text-gray-800" id="omzetHarian">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-green-600">Laba Bersih (10%):</span>
+                    <span class="text-lg font-black text-green-600" id="labaHarian">Rp 0</span>
+                </div>
+                <div class="mt-2 pt-2 border-t border-gray-50 border-dashed text-right">
+                    <button onclick="unduhCSV('harian')" class="text-[10px] bg-green-50 text-green-700 px-2 py-1 rounded font-bold hover:bg-green-100 transition"><i class="fas fa-file-excel mr-1"></i> Unduh Data Harian</button>
+                </div>
+            </div>
+
+            <!-- KOTAK BULANAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-blue-500 p-4 mb-3">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h3 class="font-bold text-blue-600 text-xs uppercase">BULAN INI</h3>
                     <span class="text-[10px] text-gray-400" id="tglBulanIni">-</span>
                 </div>
                 <div class="flex justify-between items-center mb-1">
-                    <span class="text-xs text-gray-500">Total Perputaran Uang:</span>
+                    <span class="text-xs text-gray-500">Omzet Kotor:</span>
                     <span class="text-sm font-bold text-gray-800" id="omzetBulanan">Rp 0</span>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span class="text-xs font-bold text-green-600">Laba Bersih Admin (10%):</span>
-                    <span class="text-lg font-black text-green-600" id="labaBulanan">Rp 0</span>
+                    <span class="text-xs font-bold text-blue-600">Laba Bersih (10%):</span>
+                    <span class="text-lg font-black text-blue-600" id="labaBulanan">Rp 0</span>
+                </div>
+                <div class="mt-2 pt-2 border-t border-gray-50 border-dashed text-right">
+                    <button onclick="unduhCSV('bulanan')" class="text-[10px] bg-blue-50 text-blue-700 px-2 py-1 rounded font-bold hover:bg-blue-100 transition"><i class="fas fa-file-excel mr-1"></i> Unduh Data Bulanan</button>
+                </div>
+            </div>
+
+            <!-- KOTAK TAHUNAN -->
+            <div class="bg-white rounded-xl shadow-sm border-l-4 border-purple-500 p-4 mb-6">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-2 mb-2">
+                    <h3 class="font-bold text-purple-600 text-xs uppercase">TAHUN INI</h3>
+                    <span class="text-[10px] text-gray-400" id="tglTahunIni">-</span>
+                </div>
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-xs text-gray-500">Omzet Kotor:</span>
+                    <span class="text-sm font-bold text-gray-800" id="omzetTahunan">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-bold text-purple-600">Laba Bersih (10%):</span>
+                    <span class="text-lg font-black text-purple-600" id="labaTahunan">Rp 0</span>
+                </div>
+                <div class="mt-2 pt-2 border-t border-gray-50 border-dashed text-right">
+                    <button onclick="unduhCSV('tahunan')" class="text-[10px] bg-purple-50 text-purple-700 px-2 py-1 rounded font-bold hover:bg-purple-100 transition"><i class="fas fa-file-excel mr-1"></i> Unduh Data Tahunan</button>
                 </div>
             </div>
 
             <!-- LAPORAN PER DRIVER -->
             <div class="mb-8">
-                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b pb-2"><i class="fas fa-trophy text-yellow-500"></i> Kinerja Driver (Bulan Ini)</h3>
+                <div class="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                    <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-trophy text-yellow-500"></i> Klasemen Driver (Bulan Ini)</h3>
+                    <button onclick="unduhCSV('klasemen')" class="bg-yellow-100 text-yellow-700 px-2 py-1.5 rounded text-[10px] font-bold shadow-sm hover:bg-yellow-200 transition"><i class="fas fa-download"></i> Unduh Rekap</button>
+                </div>
                 <div id="kinerjaDriver" class="space-y-3">
                     <!-- List Driver akan diinjeksi via JS -->
                 </div>
@@ -116,6 +160,11 @@
             <!-- LIST SEMUA DRIVER -->
             <div id="driverListContainer">
                 <h2 class="font-bold text-gray-800 mb-4 text-center">Daftar Akun Mitra Driver</h2>
+                
+                <button onclick="unduhSemuaDriver()" class="w-full mb-4 bg-green-500 text-white font-bold py-2.5 rounded-xl shadow-sm hover:bg-green-600 transition flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-file-excel text-lg"></i> Unduh Rekap Driver (CSV)
+                </button>
+
                 <div id="daftarSemuaDriver" class="space-y-3">
                     <p class="text-xs text-gray-400 text-center italic py-4">Memuat data driver...</p>
                 </div>
@@ -123,9 +172,14 @@
 
             <!-- DETAIL SATU DRIVER (RIWAYAT KHUSUS) -->
             <div id="driverDetailContainer" class="hidden">
-                <button onclick="kembaliKeListDriver()" class="mb-4 text-sm font-bold text-blue-600 flex items-center gap-1 hover:text-blue-800 transition bg-blue-50 px-3 py-1.5 rounded-lg">
-                    <i class="fas fa-arrow-left"></i> Kembali ke Daftar
-                </button>
+                <div class="flex justify-between items-center mb-4">
+                    <button onclick="kembaliKeListDriver()" class="text-sm font-bold text-blue-600 flex items-center gap-1 hover:text-blue-800 transition bg-blue-50 px-3 py-1.5 rounded-lg">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                    <button onclick="unduhRiwayatDriver()" class="text-sm font-bold text-green-600 flex items-center gap-1 hover:text-green-800 transition bg-green-50 px-3 py-1.5 rounded-lg shadow-sm">
+                        <i class="fas fa-file-download"></i> Unduh Data
+                    </button>
+                </div>
                 
                 <div class="bg-white rounded-xl shadow-sm border border-blue-100 p-4 mb-5 relative overflow-hidden">
                     <div class="absolute -right-4 -top-4 opacity-5 text-blue-900"><i class="fas fa-id-card text-8xl"></i></div>
@@ -148,7 +202,10 @@
                     </div>
                 </div>
 
-                <h3 class="font-bold text-gray-800 mb-3 text-sm border-b border-gray-200 pb-2"><i class="fas fa-route text-blue-500"></i> Riwayat Orderan Supir Ini</h3>
+                <div class="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                    <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-route text-blue-500"></i> Riwayat Orderan Supir Ini</h3>
+                    <button onclick="unduhCSV('perorangan')" class="bg-blue-100 text-blue-700 px-2 py-1.5 rounded text-[10px] font-bold shadow-sm hover:bg-blue-200 transition"><i class="fas fa-download"></i> Unduh (CSV)</button>
+                </div>
                 <div id="detRiwayatDriver" class="space-y-3">
                     <!-- Injected by JS -->
                 </div>
@@ -177,6 +234,7 @@
 
         let globalDataRiwayat = []; // Variabel untuk menyimpan semua orderan di memori sementara
         let globalDataDriver = {};  // Variabel untuk menyimpan daftar supir
+        let currentDetailDriver = ""; // Menyimpan nama driver yang sedang dilihat
 
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
 
@@ -239,39 +297,22 @@
             if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) remove(ref(db, 'laporan_selesai/' + id));
         };
 
-        onValue(ref(db, 'orderan_aktif'), (snapshot) => {
-            const data = snapshot.val();
-            const container = document.getElementById('daftarOrderan');
-            container.innerHTML = ''; 
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    let order = data[key];
-                    container.innerHTML += `
-                    <div class="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative">
-                        <p class="text-[11px] text-gray-500 font-bold mb-1 uppercase">📍 Jemput: <span class="text-gray-800 normal-case">${order.jemput}</span></p>
-                        <p class="text-[11px] text-gray-500 font-bold mb-3 uppercase">🏁 Tujuan: <span class="text-gray-800 normal-case">${order.tujuan}</span></p>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-2">
-                            <span class="text-sm font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
-                            <button onclick="hapusOrderan('${key}')" class="bg-gray-100 text-gray-500 px-3 py-1.5 rounded text-[10px] font-bold hover:bg-red-100 hover:text-red-600 transition">
-                                <i class="fas fa-times"></i> Tarik
-                            </button>
-                        </div>
-                    </div>`;
-                });
-            } else { container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>'; }
-        });
-
         // BACA LAPORAN & KALKULASI DRIVER
         onValue(ref(db, 'laporan_selesai'), (snapshot) => {
             const data = snapshot.val();
+            let omzetHari = 0, labaHari = 0;
             let omzetBulan = 0, labaBulan = 0;
+            let omzetTahun = 0, labaTahun = 0;
             let statsDriver = {}; // Menyimpan rapor per driver
             
             const now = new Date();
             const blnIni = now.getMonth();
             const thnIni = now.getFullYear();
+            const tglIni = now.toDateString();
 
+            document.getElementById('tglHariIni').innerText = now.toLocaleDateString('id-ID', { day:'numeric', month: 'long', year: 'numeric' });
             document.getElementById('tglBulanIni').innerText = now.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            document.getElementById('tglTahunIni').innerText = thnIni;
             
             const listRiwayat = document.getElementById('riwayatLaporan');
             const listKinerja = document.getElementById('kinerjaDriver');
@@ -291,16 +332,149 @@
                         let tarif = parseInt(trx.tarif) || 0;
                         let potongan = parseInt(trx.potongan) || 0;
 
+                        // Kalkulasi Harian
+                        if(d.toDateString() === tglIni) {
+                            omzetHari += tarif; labaHari += potongan;
+                        }
+                        // Kalkulasi Bulanan
                         if(d.getFullYear() === thnIni && d.getMonth() === blnIni) {
-                            omzetBulan += tarif; 
-                            labaBulan += potongan;
+                            omzetBulan += tarif; labaBulan += potongan;
                             
-                            // Hitung Rapor Perorangan Driver
+                            // Hitung Rapor Perorangan Driver (Klasemen Bulan Ini)
                             let namaDrv = trx.driverInisial || "Driver Lama (Tanpa Nama)";
                             if(!statsDriver[namaDrv]) statsDriver[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
-                            
                             statsDriver[namaDrv].totalTrip += 1;
                             statsDriver[namaDrv].setoranAdmin += potongan;
+                        }
+                        // Kalkulasi Tahunan
+                        if(d.getFullYear() === thnIni) {
+                            omzetTahun += tarif; labaTahun += potongan;
+                        }
+                    }
+                });
+                
+                arrRiwayat.sort((a, b) => b.waktu - a.waktu);
+                globalDataRiwayat = arrRiwayat; // Simpan ke global untuk tab Driver
+                
+                // CETAK RIWAYAT TRANSAKSI BAWAH
+                arrRiwayat.forEach(trx => {
+                    let d = new Date(trx.waktu);
+                    let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                    let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200';
+                    let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
+                    let ruteStr = (trx.jemput) + ' ➔ ' + (trx.tujuan);
+                    let nmDrv = trx.driverInisial || "Anonim";
+
+                    listRiwayat.innerHTML += `
+                    <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1 pr-2">
+                                <p class="text-[10px] text-gray-500 mb-0.5">${wkt} • <span class="font-bold text-blue-600">🚗 ${nmDrv}</span></p>
+                                <p class="text-xs font-semibold text-gray-800 line-clamp-1">${ruteStr}</p>
+                            </div>
+                            <div>${badge}</div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2">
+                            <p class="text-[10px] text-gray-500 font-bold">Tarif: Rp ${Number(trx.tarif).toLocaleString('id-ID')}</p>
+                            <button onclick="hapusLaporan('${trx.id}')" class="text-[10px] text-gray-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
+                        </div>
+                    </div>`;
+                });
+
+                // CETAK KINERJA DRIVER
+                let adaDriverBulanIni = false;
+                Object.keys(statsDriver).sort((a,b) => statsDriver[b].totalTrip - statsDriver[a].totalTrip).forEach((nama, index) => {
+                    adaDriverBulanIni = true;
+                    let stat = statsDriver[nama];
+                    // Medali untuk peringkat 1,2,3
+                    let medali = "";
+                    if(index === 0) medali = "🥇"; else if (index === 1) medali = "🥈"; else if (index === 2) medali = "🥉";
+
+                    listKinerja.innerHTML += `
+                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex justify-between items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">${nama.substring(0,2).toUpperCase()}</div>
+                            <div>
+                                <p class="font-bold text-gray-800 text-sm">${nama} ${medali}</p>
+                                <p class="text-[10px] text-gray-500">${stat.totalTrip} Trip Sukses</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[9px] text-gray-500">Setoran Admin</p>
+                            <p class="font-black text-blue-600 text-sm">Rp ${stat.setoranAdmin.toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>`;
+                });
+                
+                if(!adaDriverBulanIni) listKinerja.innerHTML = '<p class="text-xs text-gray-400 italic">Belum ada orderan sukses bulan ini.</p>';
+                
+            } else {
+                listRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada riwayat transaksi.</p>';
+                listKinerja.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada data driver.</p>';
+            }
+
+            // Tampilkan ke layar
+            document.getElementById('omzetHarian').innerText = "Rp " + omzetHari.toLocaleString('id-ID');
+            document.getElementById('labaHarian').innerText = "Rp " + labaHari.toLocaleString('id-ID');
+            document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
+            document.getElementById('labaBulanan').innerText = "Rp " + labaBulan.toLocaleString('id-ID');
+            document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahun.toLocaleString('id-ID');
+            document.getElementById('labaTahunan').innerText = "Rp " + labaTahun.toLocaleString('id-ID');
+        });
+            } else { container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>'; }
+        });
+
+        // BACA LAPORAN & KALKULASI DRIVER
+        onValue(ref(db, 'laporan_selesai'), (snapshot) => {
+            const data = snapshot.val();
+            let omzetHarian = 0, labaHarian = 0;
+            let omzetBulanan = 0, labaBulanan = 0;
+            let omzetTahunan = 0, labaTahunan = 0;
+            let statsDriver = {}; // Menyimpan rapor per driver
+            
+            const now = new Date();
+            const blnIni = now.getMonth();
+            const thnIni = now.getFullYear();
+            const tglIni = now.getDate();
+            
+            const listRiwayat = document.getElementById('riwayatLaporan');
+            const listKinerja = document.getElementById('kinerjaDriver');
+            listRiwayat.innerHTML = '';
+            listKinerja.innerHTML = '';
+            
+            let arrRiwayat = [];
+
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    let trx = data[key];
+                    trx.id = key;
+                    arrRiwayat.push(trx);
+                    
+                    if (trx.status !== 'batal') {
+                        let d = new Date(trx.waktu);
+                        let tarif = parseInt(trx.tarif) || 0;
+                        let potongan = parseInt(trx.potongan) || 0;
+
+                        if(d.getFullYear() === thnIni) {
+                            omzetTahunan += tarif; 
+                            labaTahunan += potongan;
+                            
+                            if(d.getMonth() === blnIni) {
+                                omzetBulanan += tarif; 
+                                labaBulanan += potongan;
+                                
+                                // Hitung Rapor Perorangan Driver (Fokus bulan ini)
+                                let namaDrv = trx.driverInisial || "Driver Lama (Tanpa Nama)";
+                                if(!statsDriver[namaDrv]) statsDriver[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
+                                
+                                statsDriver[namaDrv].totalTrip += 1;
+                                statsDriver[namaDrv].setoranAdmin += potongan;
+
+                                if(d.getDate() === tglIni) {
+                                    omzetHarian += tarif;
+                                    labaHarian += potongan;
+                                }
+                            }
                         }
                     }
                 });
@@ -361,8 +535,12 @@
                 listKinerja.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada data driver.</p>';
             }
 
-            document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
-            document.getElementById('labaBulanan').innerText = "Rp " + labaBulan.toLocaleString('id-ID');
+            document.getElementById('omzetHarian').innerText = "Rp " + omzetHarian.toLocaleString('id-ID');
+            document.getElementById('labaHarian').innerText = "Rp " + labaHarian.toLocaleString('id-ID');
+            document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulanan.toLocaleString('id-ID');
+            document.getElementById('labaBulanan').innerText = "Rp " + labaBulanan.toLocaleString('id-ID');
+            document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahunan.toLocaleString('id-ID');
+            document.getElementById('labaTahunan').innerText = "Rp " + labaTahunan.toLocaleString('id-ID');
         });
 
         // BACA DAFTAR DRIVER DARI DATABASE
@@ -407,6 +585,7 @@
             document.getElementById('driverDetailContainer').classList.remove('hidden');
             window.scrollTo(0, 0);
 
+            currentDetailDriver = nama; // Simpan nama driver untuk keperluan unduh CSV
             document.getElementById('detNamaDriver').innerText = nama;
             document.getElementById('detMobilDriver').innerText = `🚗 ${mobil} | 🪪 ${plat}`;
 
@@ -458,6 +637,43 @@
             document.getElementById('driverListContainer').classList.remove('hidden');
             document.getElementById('driverDetailContainer').classList.add('hidden');
         }
+
+        // ==========================================
+        // FUNGSI EXPORT CSV (EXCEL)
+        // ==========================================
+        window.unduhCSV = function(filename, csvData) {
+            let blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+            let link = document.createElement("a");
+            let url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        window.unduhSemuaDriver = function() {
+            let csv = "Nama Lengkap,Inisial,Mobil,Plat,Tanggal Daftar\n";
+            Object.values(globalDataDriver).forEach(drv => {
+                let d = drv.waktuDaftar ? new Date(drv.waktuDaftar).toLocaleDateString('id-ID') : '-';
+                csv += `"${drv.namaLengkap}","${drv.inisial}","${drv.mobil}","${drv.plat}","${d}"\n`;
+            });
+            unduhCSV("Data_Semua_Driver.csv", csv);
+        };
+
+        window.unduhRiwayatDriver = function() {
+            if (!currentDetailDriver) return;
+            let riwayat = globalDataRiwayat.filter(trx => trx.driverNama === currentDetailDriver);
+            let csv = "Tanggal,Jemput,Tujuan,Tarif,Setoran Admin,Status\n";
+            riwayat.forEach(trx => {
+                let d = new Date(trx.waktu);
+                let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                let status = trx.status === 'batal' ? 'Batal' : 'Sukses';
+                csv += `"${wkt}","${trx.jemput}","${trx.tujuan}","${trx.tarif}","${trx.potongan}","${status}"\n`;
+            });
+            unduhCSV(`Riwayat_Orderan_${currentDetailDriver.replace(/\s+/g, '_')}.csv`, csv);
+        };
     </script>
 </body>
 </html>
