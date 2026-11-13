@@ -18,7 +18,7 @@
 
     <div class="app-container pb-10">
         
-        <!-- LAYAR 1: BURSA ORDERAN (REBUTAN) -->
+        <!-- LAYAR 1: BURSA ORDERAN -->
         <div id="layar-bursa">
             <div class="bg-gray-900 text-white p-5 text-center rounded-b-3xl shadow-lg relative overflow-hidden sticky top-0 z-40">
                 <div class="absolute -right-5 -top-5 opacity-10">
@@ -42,7 +42,7 @@
             </div>
         </div>
 
-        <!-- LAYAR 2: ORDERAN SAYA (SEDANG DIJALANKAN) -->
+        <!-- LAYAR 2: ORDERAN SAYA -->
         <div id="layar-perjalanan" class="hidden">
             <div class="bg-green-600 text-white p-5 text-center rounded-b-3xl shadow-lg sticky top-0 z-40">
                 <h1 class="font-black text-xl uppercase tracking-widest drop-shadow-md"><i class="fas fa-check-circle"></i> ORDERAN DIAMBIL</h1>
@@ -54,8 +54,6 @@
                     <div class="p-4 border-b border-gray-100 bg-blue-50">
                         <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-1">📍 Jemput Penumpang Di:</p>
                         <p class="font-bold text-gray-800 text-sm mb-3" id="aktifJemput">-</p>
-                        
-                        <!-- Tombol Buka Maps Jemput -->
                         <button onclick="bukaMaps('jemput')" class="bg-blue-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-blue-700 transition w-full flex items-center justify-center gap-2">
                             <i class="fas fa-location-arrow"></i> Petunjuk Arah Jemput (Maps)
                         </button>
@@ -63,8 +61,6 @@
                     <div class="p-4 border-b border-gray-100 bg-red-50">
                         <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider mb-1">🏁 Antar Penumpang Ke:</p>
                         <p class="font-bold text-gray-800 text-sm mb-3" id="aktifTujuan">-</p>
-                        
-                        <!-- Tombol Buka Maps Tujuan -->
                         <button onclick="bukaMaps('tujuan')" class="bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-red-700 transition w-full flex items-center justify-center gap-2">
                             <i class="fas fa-map-marked-alt"></i> Petunjuk Arah Antar (Maps)
                         </button>
@@ -79,13 +75,18 @@
                     </div>
                 </div>
 
-                <button onclick="bukaModalQRIS()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg">
-                    <i class="fas fa-flag-checkered text-2xl"></i> SELESAIKAN ORDERAN
-                </button>
+                <div class="flex gap-2">
+                    <button onclick="batalkanOrderanWA()" class="w-1/3 bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl shadow-sm hover:bg-red-100 active:scale-95 transition flex flex-col items-center justify-center gap-1 text-xs">
+                        <i class="fas fa-times-circle text-lg"></i> CANCEL
+                    </button>
+                    <button onclick="bukaModalQRIS()" class="w-2/3 bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg">
+                        <i class="fas fa-flag-checkered text-2xl"></i> SELESAI (SUKSES)
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- MODAL QRIS (POP UP) -->
+        <!-- MODAL QRIS -->
         <div id="modalQRIS" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
             <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all">
                 <div class="bg-yellow-100 p-4 text-center border-b border-yellow-200">
@@ -98,7 +99,6 @@
                     <p class="text-3xl font-black text-red-600 mb-4" id="aktifPotongan">Rp 0</p>
                     
                     <div class="bg-gray-100 p-2 rounded-xl mb-4 border border-gray-200 inline-block">
-                        <!-- INI GAMBAR QRIS YANG ANDA UPLOAD -->
                         <img src="qris.jpg" alt="QRIS Pembayaran" class="w-48 h-auto mx-auto rounded shadow-sm" onerror="this.src='https://via.placeholder.com/300x300?text=Gambar+QRIS+Belum+Diupload'">
                         <p class="text-[10px] text-gray-500 mt-2">Screenshot QRIS ini untuk membayar</p>
                     </div>
@@ -115,7 +115,7 @@
     <!-- KODE PENGHUBUNG FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, onValue, get, remove, push, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3LNakfEQDlpwp1RC4OBsF6GoEQ934ERo",
@@ -133,26 +133,20 @@
 
         window.formatRupiah = function(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); };
 
-        // Variabel untuk menyimpan orderan yang sedang dikerjakan
         let orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
 
-        // FUNGSI REBUTAN PINTAR (LOCKING)
         window.ambilOrderan = function(idOrder, jemput, tujuan, tarifAngka) {
             const orderRef = ref(db, 'orderan_aktif/' + idOrder);
             
-            // Cek ke database apakah orderan masih ada?
             get(orderRef).then((snapshot) => {
                 if (snapshot.exists()) {
-                    // YES! Orderan masih ada. Langsung hapus agar tidak direbut orang lain.
                     remove(orderRef);
                     
-                    // Simpan data ke memori HP Driver
                     orderanAktif.jemput = jemput;
                     orderanAktif.tujuan = tujuan;
                     orderanAktif.tarif = tarifAngka;
                     orderanAktif.potongan = tarifAngka * 0.10;
 
-                    // Ubah Layar ke "Orderan Saya"
                     document.getElementById('layar-bursa').classList.add('hidden');
                     document.getElementById('layar-perjalanan').classList.remove('hidden');
                     
@@ -161,22 +155,16 @@
                     document.getElementById('aktifTarif').innerText = window.formatRupiah(tarifAngka);
                     document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
 
-                    // Buka WA Lapor Admin bahwa dia yang dapat
                     let teksDriver = `Bos Admin, orderan ini SAYA YANG AMBIL ya! 🚘\n\n📍 *Jemput:* ${jemput}\n🏁 *Tujuan:* ${tujuan}\n💰 *Tarif:* ${window.formatRupiah(tarifAngka)}\n\nTolong berikan nomor HP penumpangnya bos.`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
                 } else {
-                    // YAH! Keduluan orang lain
-                    alert("MOHON MAAF 🙏\nOrderan ini baru saja diambil oleh driver lain beberapa detik yang lalu. Tetap semangat, tunggu orderan berikutnya!");
+                    alert("MOHON MAAF 🙏\nOrderan ini baru saja diambil oleh driver lain. Tetap semangat, tunggu orderan berikutnya!");
                 }
-            }).catch((error) => {
-                alert("Gangguan sinyal. Gagal mengambil orderan.");
-            });
+            }).catch((error) => { alert("Gangguan sinyal. Gagal mengambil orderan."); });
         };
 
-        // FUNGSI BUKA GOOGLE MAPS
         window.bukaMaps = function(jenis) {
             let lokasi = jenis === 'jemput' ? orderanAktif.jemput : orderanAktif.tujuan;
-            // Membuka Google Maps versi Web/Aplikasi untuk penunjuk arah
             let urlMaps = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lokasi)}`;
             window.open(urlMaps, '_blank');
         };
@@ -185,17 +173,47 @@
             document.getElementById('modalQRIS').classList.remove('hidden');
         };
 
-        window.laporSelesaiWA = function() {
-            let teksSelesai = `Lapor Bos Admin, orderan sudah SELESAI diantar! ✅\n\n📍 Tujuan: ${orderanAktif.tujuan}\n💸 Potongan admin sebesar *${window.formatRupiah(orderanAktif.potongan)}* sedang/sudah saya transfer.\n\nTerima kasih bos!`;
-            window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
-            
-            // Reset Layar kembali ke bursa
-            document.getElementById('modalQRIS').classList.add('hidden');
-            document.getElementById('layar-perjalanan').classList.add('hidden');
-            document.getElementById('layar-bursa').classList.remove('hidden');
+        window.batalkanOrderanWA = function() {
+            if(confirm("Yakin orderan ini dibatalkan oleh penumpang?")) {
+                const laporanRef = push(ref(db, 'laporan_selesai'));
+                set(laporanRef, {
+                    jemput: orderanAktif.jemput,
+                    tujuan: orderanAktif.tujuan,
+                    tarif: orderanAktif.tarif,
+                    potongan: orderanAktif.potongan,
+                    status: 'batal',
+                    waktu: new Date().getTime()
+                }).then(() => {
+                    let teksBatal = `Lapor Bos Admin, orderan DICANCEL oleh penumpang! ❌\n\n📍 Tujuan: ${orderanAktif.tujuan}\n\nMohon maklum ya bos.`;
+                    window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
+                    
+                    document.getElementById('layar-perjalanan').classList.add('hidden');
+                    document.getElementById('layar-bursa').classList.remove('hidden');
+                });
+            }
         };
 
-        // MENDENGARKAN PERUBAHAN BURSA
+        window.laporSelesaiWA = function() {
+            // 1. SIMPAN LAPORAN KEUANGAN KE DATABASE
+            const laporanRef = push(ref(db, 'laporan_selesai'));
+            set(laporanRef, {
+                jemput: orderanAktif.jemput,
+                tujuan: orderanAktif.tujuan,
+                tarif: orderanAktif.tarif,
+                potongan: orderanAktif.potongan,
+                status: 'sukses',
+                waktu: new Date().getTime()
+            }).then(() => {
+                // 2. KEMUDIAN BUKA WHATSAPP
+                let teksSelesai = `Lapor Bos Admin, orderan sudah SELESAI diantar! ✅\n\n📍 Tujuan: ${orderanAktif.tujuan}\n💸 Potongan admin sebesar *${window.formatRupiah(orderanAktif.potongan)}* sedang/sudah saya transfer.\n\nTerima kasih bos!`;
+                window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
+                
+                document.getElementById('modalQRIS').classList.add('hidden');
+                document.getElementById('layar-perjalanan').classList.add('hidden');
+                document.getElementById('layar-bursa').classList.remove('hidden');
+            });
+        };
+
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderanDriver');
@@ -241,7 +259,6 @@
                         </div>
 
                         <div class="p-3 bg-gray-50">
-                            <!-- PASSING ID UNTUK LOCKING REBUTAN -->
                             <button onclick="ambilOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition-all flex items-center justify-center gap-2">
                                 <i class="fab fa-whatsapp text-xl"></i> AMBIL ORDERAN INI
                             </button>
