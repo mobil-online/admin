@@ -50,6 +50,12 @@
             </div>
 
             <div class="p-5">
+                <!-- SPANDUK PERINGATAN BARU -->
+                <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl mb-5 text-[11px] font-bold text-center shadow-sm animate-pulse">
+                    <i class="fas fa-exclamation-triangle mb-1 text-lg block"></i>
+                    ANDA TIDAK BISA MELIHAT ORDERAN BARU SEBELUM KLIK TOMBOL "SELESAI" ATAU "CANCEL" DI BAWAH INI!
+                </div>
+                
                 <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden mb-6">
                     <div class="p-4 border-b border-gray-100 bg-blue-50">
                         <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-1">📍 Jemput Penumpang Di:</p>
@@ -133,7 +139,26 @@
 
         window.formatRupiah = function(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); };
 
-        let orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+        // MENGGUNAKAN LOCAL STORAGE AGAR TIDAK HILANG SAAT KELUAR BROWSER
+        let orderanAktif = JSON.parse(localStorage.getItem('orderanAktifMOSP')) || { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+
+        // FUNGSI CEK STATUS SAAT BROWSER DIBUKA
+        window.cekStatusLokal = function() {
+            if (orderanAktif.jemput !== "") {
+                document.getElementById('layar-bursa').classList.add('hidden');
+                document.getElementById('layar-perjalanan').classList.remove('hidden');
+                document.getElementById('aktifJemput').innerText = orderanAktif.jemput;
+                document.getElementById('aktifTujuan').innerText = orderanAktif.tujuan;
+                document.getElementById('aktifTarif').innerText = window.formatRupiah(orderanAktif.tarif);
+                document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
+            } else {
+                document.getElementById('layar-perjalanan').classList.add('hidden');
+                document.getElementById('layar-bursa').classList.remove('hidden');
+            }
+        };
+
+        // JALANKAN SAAT PERTAMA KALI DIBUKA
+        window.cekStatusLokal();
 
         window.ambilOrderan = function(idOrder, jemput, tujuan, tarifAngka) {
             const orderRef = ref(db, 'orderan_aktif/' + idOrder);
@@ -147,13 +172,9 @@
                     orderanAktif.tarif = tarifAngka;
                     orderanAktif.potongan = tarifAngka * 0.10;
 
-                    document.getElementById('layar-bursa').classList.add('hidden');
-                    document.getElementById('layar-perjalanan').classList.remove('hidden');
-                    
-                    document.getElementById('aktifJemput').innerText = jemput;
-                    document.getElementById('aktifTujuan').innerText = tujuan;
-                    document.getElementById('aktifTarif').innerText = window.formatRupiah(tarifAngka);
-                    document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
+                    // SIMPAN KE MEMORI HP DRIVER
+                    localStorage.setItem('orderanAktifMOSP', JSON.stringify(orderanAktif));
+                    window.cekStatusLokal();
 
                     let teksDriver = `Bos Admin, orderan ini SAYA YANG AMBIL ya! 🚘\n\n📍 *Jemput:* ${jemput}\n🏁 *Tujuan:* ${tujuan}\n💰 *Tarif:* ${window.formatRupiah(tarifAngka)}\n\nTolong berikan nomor HP penumpangnya bos.`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
@@ -184,11 +205,14 @@
                     status: 'batal',
                     waktu: new Date().getTime()
                 }).then(() => {
-                    let teksBatal = `Lapor Bos Admin, orderan DICANCEL oleh penumpang! ❌\n\n📍 Tujuan: ${orderanAktif.tujuan}\n\nMohon maklum ya bos.`;
-                    window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
+                    // HAPUS DARI MEMORI HP KARENA SUDAH LAPOR
+                    localStorage.removeItem('orderanAktifMOSP');
+                    let ruteBatal = orderanAktif.tujuan;
+                    orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+                    window.cekStatusLokal();
                     
-                    document.getElementById('layar-perjalanan').classList.add('hidden');
-                    document.getElementById('layar-bursa').classList.remove('hidden');
+                    let teksBatal = `Lapor Bos Admin, orderan DICANCEL oleh penumpang! ❌\n\n📍 Tujuan: ${ruteBatal}\n\nMohon maklum ya bos.`;
+                    window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
                 });
             }
         };
@@ -204,13 +228,17 @@
                 status: 'sukses',
                 waktu: new Date().getTime()
             }).then(() => {
-                // 2. KEMUDIAN BUKA WHATSAPP
-                let teksSelesai = `Lapor Bos Admin, orderan sudah SELESAI diantar! ✅\n\n📍 Tujuan: ${orderanAktif.tujuan}\n💸 Potongan admin sebesar *${window.formatRupiah(orderanAktif.potongan)}* sedang/sudah saya transfer.\n\nTerima kasih bos!`;
-                window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
-                
+                // HAPUS DARI MEMORI HP KARENA SUDAH LAPOR
+                localStorage.removeItem('orderanAktifMOSP');
+                let ruteSukses = orderanAktif.tujuan;
+                let potSukses = orderanAktif.potongan;
+                orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+                window.cekStatusLokal();
                 document.getElementById('modalQRIS').classList.add('hidden');
-                document.getElementById('layar-perjalanan').classList.add('hidden');
-                document.getElementById('layar-bursa').classList.remove('hidden');
+
+                // 2. KEMUDIAN BUKA WHATSAPP
+                let teksSelesai = `Lapor Bos Admin, orderan sudah SELESAI diantar! ✅\n\n📍 Tujuan: ${ruteSukses}\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sedang/sudah saya transfer.\n\nTerima kasih bos!`;
+                window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
             });
         };
 
