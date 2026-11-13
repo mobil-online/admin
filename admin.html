@@ -138,9 +138,14 @@
                     <h3 class="font-bold text-gray-800 text-sm"><i class="fas fa-trophy text-yellow-500"></i> Klasemen Driver (Bulan Ini)</h3>
                     <button onclick="unduhCSV('klasemen')" class="bg-yellow-100 text-yellow-700 px-2 py-1.5 rounded text-[10px] font-bold shadow-sm hover:bg-yellow-200 transition"><i class="fas fa-download"></i> Unduh Rekap</button>
                 </div>
-                <div id="kinerjaDriver" class="space-y-3">
+                <div id="kinerjaDriver" class="space-y-3 mb-4">
                     <!-- List Driver akan diinjeksi via JS -->
                 </div>
+                
+                <!-- TOMBOL BARU UNTUK SHARE KE GRUP WA -->
+                <button onclick="bagikanKlasemenWA()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-black py-3.5 rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition flex justify-center items-center gap-2">
+                    <i class="fab fa-whatsapp text-2xl"></i> BAGIKAN KLASEMEN KE GRUP
+                </button>
             </div>
 
             <!-- RIWAYAT TRANSAKSI -->
@@ -232,12 +237,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        let globalDataRiwayat = []; // Variabel untuk menyimpan semua orderan di memori sementara
-        let globalDataDriver = {};  // Variabel untuk menyimpan daftar supir
-        let currentDetailDriver = ""; // Menyimpan nama driver yang sedang dilihat
+        let globalDataRiwayat = []; 
+        let globalDataDriver = {};  
+        let currentDetailDriver = ""; 
 
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
 
+        // ==========================================
+        // FUNGSI NAVIGASI TAB
+        // ==========================================
         window.bukaTab = function(namaTab) {
             document.getElementById('view-orderan').classList.add('hidden');
             document.getElementById('view-laporan').classList.add('hidden');
@@ -261,6 +269,9 @@
             }
         }
 
+        // ==========================================
+        // FUNGSI PAPAN ORDERAN
+        // ==========================================
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
             try {
@@ -297,13 +308,39 @@
             if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) remove(ref(db, 'laporan_selesai/' + id));
         };
 
-        // BACA LAPORAN & KALKULASI DRIVER
+        onValue(ref(db, 'orderan_aktif'), (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('daftarOrderan');
+            container.innerHTML = ''; 
+
+            if (data) {
+                const daftarKeys = Object.keys(data).reverse(); 
+                daftarKeys.forEach(key => {
+                    let order = data[key];
+                    container.innerHTML += `
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 relative">
+                        <p class="text-xs font-bold text-gray-800 mb-1">📍 ${order.jemput}</p>
+                        <p class="text-xs font-bold text-gray-800 mb-2">🏁 ${order.tujuan}</p>
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1">
+                            <span class="text-lg font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
+                            <button onclick="hapusOrderan('${key}')" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold hover:bg-red-200 transition"><i class="fas fa-trash"></i> Hapus</button>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>';
+            }
+        });
+
+        // ==========================================
+        // FUNGSI LAPORAN & KALKULASI DRIVER
+        // ==========================================
         onValue(ref(db, 'laporan_selesai'), (snapshot) => {
             const data = snapshot.val();
             let omzetHari = 0, labaHari = 0;
             let omzetBulan = 0, labaBulan = 0;
             let omzetTahun = 0, labaTahun = 0;
-            let statsDriver = {}; // Menyimpan rapor per driver
+            let statsDriver = {}; 
             
             const now = new Date();
             const blnIni = now.getMonth();
@@ -332,21 +369,17 @@
                         let tarif = parseInt(trx.tarif) || 0;
                         let potongan = parseInt(trx.potongan) || 0;
 
-                        // Kalkulasi Harian
                         if(d.toDateString() === tglIni) {
                             omzetHari += tarif; labaHari += potongan;
                         }
-                        // Kalkulasi Bulanan
                         if(d.getFullYear() === thnIni && d.getMonth() === blnIni) {
                             omzetBulan += tarif; labaBulan += potongan;
                             
-                            // Hitung Rapor Perorangan Driver (Klasemen Bulan Ini)
                             let namaDrv = trx.driverInisial || "Driver Lama (Tanpa Nama)";
                             if(!statsDriver[namaDrv]) statsDriver[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
                             statsDriver[namaDrv].totalTrip += 1;
                             statsDriver[namaDrv].setoranAdmin += potongan;
                         }
-                        // Kalkulasi Tahunan
                         if(d.getFullYear() === thnIni) {
                             omzetTahun += tarif; labaTahun += potongan;
                         }
@@ -354,9 +387,8 @@
                 });
                 
                 arrRiwayat.sort((a, b) => b.waktu - a.waktu);
-                globalDataRiwayat = arrRiwayat; // Simpan ke global untuk tab Driver
+                globalDataRiwayat = arrRiwayat; 
                 
-                // CETAK RIWAYAT TRANSAKSI BAWAH
                 arrRiwayat.forEach(trx => {
                     let d = new Date(trx.waktu);
                     let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
@@ -381,12 +413,10 @@
                     </div>`;
                 });
 
-                // CETAK KINERJA DRIVER
                 let adaDriverBulanIni = false;
                 Object.keys(statsDriver).sort((a,b) => statsDriver[b].totalTrip - statsDriver[a].totalTrip).forEach((nama, index) => {
                     adaDriverBulanIni = true;
                     let stat = statsDriver[nama];
-                    // Medali untuk peringkat 1,2,3
                     let medali = "";
                     if(index === 0) medali = "🥇"; else if (index === 1) medali = "🥈"; else if (index === 2) medali = "🥉";
 
@@ -413,7 +443,6 @@
                 listKinerja.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada data driver.</p>';
             }
 
-            // Tampilkan ke layar
             document.getElementById('omzetHarian').innerText = "Rp " + omzetHari.toLocaleString('id-ID');
             document.getElementById('labaHarian').innerText = "Rp " + labaHari.toLocaleString('id-ID');
             document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulan.toLocaleString('id-ID');
@@ -421,129 +450,10 @@
             document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahun.toLocaleString('id-ID');
             document.getElementById('labaTahunan').innerText = "Rp " + labaTahun.toLocaleString('id-ID');
         });
-            } else { container.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Papan orderan sedang kosong.</p>'; }
-        });
 
-        // BACA LAPORAN & KALKULASI DRIVER
-        onValue(ref(db, 'laporan_selesai'), (snapshot) => {
-            const data = snapshot.val();
-            let omzetHarian = 0, labaHarian = 0;
-            let omzetBulanan = 0, labaBulanan = 0;
-            let omzetTahunan = 0, labaTahunan = 0;
-            let statsDriver = {}; // Menyimpan rapor per driver
-            
-            const now = new Date();
-            const blnIni = now.getMonth();
-            const thnIni = now.getFullYear();
-            const tglIni = now.getDate();
-            
-            const listRiwayat = document.getElementById('riwayatLaporan');
-            const listKinerja = document.getElementById('kinerjaDriver');
-            listRiwayat.innerHTML = '';
-            listKinerja.innerHTML = '';
-            
-            let arrRiwayat = [];
-
-            if (data) {
-                Object.keys(data).forEach(key => {
-                    let trx = data[key];
-                    trx.id = key;
-                    arrRiwayat.push(trx);
-                    
-                    if (trx.status !== 'batal') {
-                        let d = new Date(trx.waktu);
-                        let tarif = parseInt(trx.tarif) || 0;
-                        let potongan = parseInt(trx.potongan) || 0;
-
-                        if(d.getFullYear() === thnIni) {
-                            omzetTahunan += tarif; 
-                            labaTahunan += potongan;
-                            
-                            if(d.getMonth() === blnIni) {
-                                omzetBulanan += tarif; 
-                                labaBulanan += potongan;
-                                
-                                // Hitung Rapor Perorangan Driver (Fokus bulan ini)
-                                let namaDrv = trx.driverInisial || "Driver Lama (Tanpa Nama)";
-                                if(!statsDriver[namaDrv]) statsDriver[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
-                                
-                                statsDriver[namaDrv].totalTrip += 1;
-                                statsDriver[namaDrv].setoranAdmin += potongan;
-
-                                if(d.getDate() === tglIni) {
-                                    omzetHarian += tarif;
-                                    labaHarian += potongan;
-                                }
-                            }
-                        }
-                    }
-                });
-                
-                arrRiwayat.sort((a, b) => b.waktu - a.waktu);
-                globalDataRiwayat = arrRiwayat; // Simpan ke global untuk tab Driver
-                
-                // CETAK RIWAYAT TRANSAKSI BAWAH
-                arrRiwayat.forEach(trx => {
-                    let d = new Date(trx.waktu);
-                    let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                    let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200';
-                    let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
-                    let ruteStr = (trx.jemput) + ' ➔ ' + (trx.tujuan);
-                    let nmDrv = trx.driverInisial || "Anonim";
-
-                    listRiwayat.innerHTML += `
-                    <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
-                        <div class="flex justify-between items-start mb-2">
-                            <div class="flex-1 pr-2">
-                                <p class="text-[10px] text-gray-500 mb-0.5">${wkt} • <span class="font-bold text-blue-600">🚗 ${nmDrv}</span></p>
-                                <p class="text-xs font-semibold text-gray-800 line-clamp-1">${ruteStr}</p>
-                            </div>
-                            <div>${badge}</div>
-                        </div>
-                        <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2">
-                            <p class="text-[10px] text-gray-500 font-bold">Tarif: Rp ${Number(trx.tarif).toLocaleString('id-ID')}</p>
-                            <button onclick="hapusLaporan('${trx.id}')" class="text-[10px] text-gray-400 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
-                        </div>
-                    </div>`;
-                });
-
-                // CETAK KINERJA DRIVER
-                let adaDriverBulanIni = false;
-                Object.keys(statsDriver).sort((a,b) => statsDriver[b].totalTrip - statsDriver[a].totalTrip).forEach(nama => {
-                    adaDriverBulanIni = true;
-                    let stat = statsDriver[nama];
-                    listKinerja.innerHTML += `
-                    <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 flex justify-between items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">${nama.substring(0,2).toUpperCase()}</div>
-                            <div>
-                                <p class="font-bold text-gray-800 text-sm">${nama}</p>
-                                <p class="text-[10px] text-gray-500">${stat.totalTrip} Trip Sukses</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-[9px] text-gray-500">Setoran ke Admin</p>
-                            <p class="font-black text-blue-600 text-sm">Rp ${stat.setoranAdmin.toLocaleString('id-ID')}</p>
-                        </div>
-                    </div>`;
-                });
-                
-                if(!adaDriverBulanIni) listKinerja.innerHTML = '<p class="text-xs text-gray-400 italic">Belum ada orderan sukses bulan ini.</p>';
-                
-            } else {
-                listRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada riwayat transaksi.</p>';
-                listKinerja.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada data driver.</p>';
-            }
-
-            document.getElementById('omzetHarian').innerText = "Rp " + omzetHarian.toLocaleString('id-ID');
-            document.getElementById('labaHarian').innerText = "Rp " + labaHarian.toLocaleString('id-ID');
-            document.getElementById('omzetBulanan').innerText = "Rp " + omzetBulanan.toLocaleString('id-ID');
-            document.getElementById('labaBulanan').innerText = "Rp " + labaBulanan.toLocaleString('id-ID');
-            document.getElementById('omzetTahunan').innerText = "Rp " + omzetTahunan.toLocaleString('id-ID');
-            document.getElementById('labaTahunan').innerText = "Rp " + labaTahunan.toLocaleString('id-ID');
-        });
-
-        // BACA DAFTAR DRIVER DARI DATABASE
+        // ==========================================
+        // FUNGSI DAFTAR DRIVER
+        // ==========================================
         onValue(ref(db, 'daftar_driver'), (snapshot) => {
             const data = snapshot.val();
             globalDataDriver = data || {};
@@ -553,7 +463,6 @@
             
             if (data) {
                 let driverArray = Object.keys(data).map(k => ({id: k, ...data[k]}));
-                // Urutkan dari yang terbaru mendaftar
                 driverArray.sort((a,b) => b.waktuDaftar - a.waktuDaftar);
 
                 driverArray.forEach(drv => {
@@ -579,17 +488,15 @@
             }
         });
 
-        // FUNGSI UNTUK MEMBUKA DETAIL ORDERAN TIAP DRIVER
         window.lihatDetailDriver = function(nama, mobil, plat) {
             document.getElementById('driverListContainer').classList.add('hidden');
             document.getElementById('driverDetailContainer').classList.remove('hidden');
             window.scrollTo(0, 0);
 
-            currentDetailDriver = nama; // Simpan nama driver untuk keperluan unduh CSV
+            currentDetailDriver = nama;
             document.getElementById('detNamaDriver').innerText = nama;
             document.getElementById('detMobilDriver').innerText = `🚗 ${mobil} | 🪪 ${plat}`;
 
-            // Saring riwayat khusus driver ini
             let riwayatDriver = globalDataRiwayat.filter(trx => trx.driverNama === nama);
             let totalTrip = 0;
             let totalSetoran = 0;
@@ -639,9 +546,9 @@
         }
 
         // ==========================================
-        // FUNGSI EXPORT CSV (EXCEL)
+        // FUNGSI UNDUH (DOWNLOAD) CSV
         // ==========================================
-        window.unduhCSV = function(filename, csvData) {
+        window.eksportFileCSV = function(filename, csvData) {
             let blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
             let link = document.createElement("a");
             let url = URL.createObjectURL(blob);
@@ -653,26 +560,123 @@
             document.body.removeChild(link);
         };
 
+        window.unduhCSV = function(jenis) {
+            const now = new Date();
+            let csv = "";
+            let filterData = [];
+
+            if (jenis === 'harian') {
+                filterData = globalDataRiwayat.filter(trx => new Date(trx.waktu).toDateString() === now.toDateString() && trx.status !== 'batal');
+                csv = "Tanggal,Jam,Driver,Jemput,Tujuan,Tarif,Setoran Admin\n";
+                filterData.forEach(trx => {
+                    let d = new Date(trx.waktu);
+                    csv += `"${d.toLocaleDateString('id-ID')}","${d.toLocaleTimeString('id-ID')}","${trx.driverNama}","${trx.jemput}","${trx.tujuan}","${trx.tarif}","${trx.potongan}"\n`;
+                });
+                window.eksportFileCSV("Rekap_Data_Harian.csv", csv);
+            } 
+            else if (jenis === 'bulanan') {
+                filterData = globalDataRiwayat.filter(trx => new Date(trx.waktu).getMonth() === now.getMonth() && new Date(trx.waktu).getFullYear() === now.getFullYear() && trx.status !== 'batal');
+                csv = "Tanggal,Driver,Jemput,Tujuan,Tarif,Setoran Admin\n";
+                filterData.forEach(trx => {
+                    let d = new Date(trx.waktu);
+                    csv += `"${d.toLocaleDateString('id-ID')}","${trx.driverNama}","${trx.jemput}","${trx.tujuan}","${trx.tarif}","${trx.potongan}"\n`;
+                });
+                window.eksportFileCSV("Rekap_Data_Bulanan.csv", csv);
+            }
+            else if (jenis === 'tahunan') {
+                filterData = globalDataRiwayat.filter(trx => new Date(trx.waktu).getFullYear() === now.getFullYear() && trx.status !== 'batal');
+                csv = "Tanggal,Driver,Tarif,Setoran Admin\n";
+                filterData.forEach(trx => {
+                    let d = new Date(trx.waktu);
+                    csv += `"${d.toLocaleDateString('id-ID')}","${trx.driverNama}","${trx.tarif}","${trx.potongan}"\n`;
+                });
+                window.eksportFileCSV("Rekap_Data_Tahunan.csv", csv);
+            }
+            else if (jenis === 'klasemen') {
+                let stats = {};
+                globalDataRiwayat.filter(trx => new Date(trx.waktu).getMonth() === now.getMonth() && trx.status !== 'batal').forEach(trx => {
+                    let namaDrv = trx.driverNama || "Anonim";
+                    if(!stats[namaDrv]) stats[namaDrv] = { totalTrip: 0, setoranAdmin: 0 };
+                    stats[namaDrv].totalTrip += 1;
+                    stats[namaDrv].setoranAdmin += parseInt(trx.potongan);
+                });
+                csv = "Nama Driver,Total Trip,Total Setoran Admin\n";
+                Object.keys(stats).sort((a,b) => stats[b].totalTrip - stats[a].totalTrip).forEach(nama => {
+                    csv += `"${nama}","${stats[nama].totalTrip}","${stats[nama].setoranAdmin}"\n`;
+                });
+                window.eksportFileCSV("Klasemen_Driver_Bulan_Ini.csv", csv);
+            }
+            else if (jenis === 'perorangan') {
+                window.unduhRiwayatDriver(); // Redirect ke fungsi unduh perorangan
+            }
+        };
+
         window.unduhSemuaDriver = function() {
             let csv = "Nama Lengkap,Inisial,Mobil,Plat,Tanggal Daftar\n";
             Object.values(globalDataDriver).forEach(drv => {
                 let d = drv.waktuDaftar ? new Date(drv.waktuDaftar).toLocaleDateString('id-ID') : '-';
                 csv += `"${drv.namaLengkap}","${drv.inisial}","${drv.mobil}","${drv.plat}","${d}"\n`;
             });
-            unduhCSV("Data_Semua_Driver.csv", csv);
+            window.eksportFileCSV("Data_Semua_Mitra_Driver.csv", csv);
         };
 
         window.unduhRiwayatDriver = function() {
             if (!currentDetailDriver) return;
             let riwayat = globalDataRiwayat.filter(trx => trx.driverNama === currentDetailDriver);
-            let csv = "Tanggal,Jemput,Tujuan,Tarif,Setoran Admin,Status\n";
+            let csv = "Tanggal,Jam,Jemput,Tujuan,Tarif,Setoran Admin,Status\n";
             riwayat.forEach(trx => {
                 let d = new Date(trx.waktu);
-                let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                let wkt = d.toLocaleDateString('id-ID');
+                let jam = d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
                 let status = trx.status === 'batal' ? 'Batal' : 'Sukses';
-                csv += `"${wkt}","${trx.jemput}","${trx.tujuan}","${trx.tarif}","${trx.potongan}","${status}"\n`;
+                csv += `"${wkt}","${jam}","${trx.jemput}","${trx.tujuan}","${trx.tarif}","${trx.potongan}","${status}"\n`;
             });
-            unduhCSV(`Riwayat_Orderan_${currentDetailDriver.replace(/\s+/g, '_')}.csv`, csv);
+            window.eksportFileCSV(`Riwayat_Orderan_${currentDetailDriver.replace(/\s+/g, '_')}.csv`, csv);
+        };
+
+        // ==========================================
+        // FUNGSI BAGIKAN KLASEMEN KE WHATSAPP GRUP
+        // ==========================================
+        window.bagikanKlasemenWA = function() {
+            const now = new Date();
+            let stats = {};
+            let totalSeluruhTrip = 0;
+
+            // Kumpulkan data orderan SUKSES di BULAN INI saja
+            globalDataRiwayat.filter(trx => new Date(trx.waktu).getMonth() === now.getMonth() && new Date(trx.waktu).getFullYear() === now.getFullYear() && trx.status !== 'batal').forEach(trx => {
+                let namaDrv = trx.driverNama || "Anonim";
+                if(!stats[namaDrv]) stats[namaDrv] = { totalTrip: 0, omzetKotor: 0 };
+                stats[namaDrv].totalTrip += 1;
+                // PENTING: Hanya ambil TARIF kotor, abaikan potongan
+                stats[namaDrv].omzetKotor += parseInt(trx.tarif); 
+                totalSeluruhTrip += 1;
+            });
+
+            // Urutkan dari trip terbanyak
+            let sortedDrivers = Object.keys(stats).sort((a,b) => stats[b].totalTrip - stats[a].totalTrip);
+
+            if (sortedDrivers.length === 0) {
+                alert("Belum ada data orderan sukses bulan ini untuk dibagikan!");
+                return;
+            }
+
+            let teksWA = `🏆 *KLASEMEN PENDAPATAN DRIVER - BULAN INI* 🏆\n🚗 *Mobil Online Sidrap - Pinrang - Parepare*\n\n`;
+
+            sortedDrivers.forEach((nama, index) => {
+                let medali = "🏅";
+                if (index === 0) medali = "🥇";
+                else if (index === 1) medali = "🥈";
+                else if (index === 2) medali = "🥉";
+
+                teksWA += `${medali} *${nama}*\n`;
+                teksWA += `└ ${stats[nama].totalTrip} Trip Sukses 🔥 | Total Orderan: Rp ${stats[nama].omzetKotor.toLocaleString('id-ID')}\n\n`;
+            });
+
+            teksWA += `📊 *Total Keseluruhan Orderan Grup: ${totalSeluruhTrip} Trip*\n\n`;
+            teksWA += `Luar biasa pencapaian bulan ini! Terima kasih atas kerja keras rekan-rekan semua. Mari gaspol cari orderan hari ini, utamakan keselamatan! 🚀🔥`;
+
+            // Buka WhatsApp
+            window.open(`https://wa.me/?text=${encodeURIComponent(teksWA)}`, '_blank');
         };
     </script>
 </body>
