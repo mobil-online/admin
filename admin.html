@@ -250,6 +250,7 @@
 
         let globalDataRiwayat = []; 
         let globalDataDriver = {};  
+        let globalDataOrderan = null; // Tambahan memori untuk orderan
         let currentDetailDriver = ""; 
 
         window.linkDriver = window.location.href.split('?')[0].replace('admin.html', 'driver.html');
@@ -358,9 +359,9 @@
             }
         }
 
-        // Papan Orderan Aktif & Sedang Dijalankan
-        onValue(ref(db, 'orderan_aktif'), (snapshot) => {
-            const data = snapshot.val();
+        // FUNGSI RENDER PAPAN ORDERAN (Sistem Refresh Dropdown Otomatis)
+        window.renderPapanOrderan = function() {
+            const data = globalDataOrderan;
             const containerMenunggu = document.getElementById('daftarOrderan');
             const containerJalan = document.getElementById('daftarDitugaskan');
             
@@ -375,11 +376,13 @@
                 
                 // Siapkan List `<option>` untuk Dropdown
                 let optionsDriverHtml = `<option value="">-- Pilih Driver --</option>`;
-                if(globalDataDriver) {
+                if(globalDataDriver && Object.keys(globalDataDriver).length > 0) {
                     Object.values(globalDataDriver).forEach(drv => {
                         let namaTampil = drv.inisial ? `${drv.namaLengkap} (${drv.inisial})` : drv.namaLengkap;
                         optionsDriverHtml += `<option value="${drv.namaLengkap}">${namaTampil}</option>`;
                     });
+                } else {
+                    optionsDriverHtml = `<option value="">(Menunggu Data Driver...)</option>`;
                 }
 
                 daftarKeys.forEach(key => {
@@ -388,7 +391,6 @@
                     if (order.status === 'menunggu') {
                         adaMenunggu = true;
                         
-                        // Cek siapa saja driver yang sudah klik tombol MINAT
                         let listPelamarHtml = "";
                         if (order.pelamar) {
                             let namaPelamarArr = Object.values(order.pelamar).map(p => p.inisial || p.nama);
@@ -410,7 +412,6 @@
                                 <button onclick="hapusOrderan('${key}')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded text-[10px] font-bold border border-red-100 hover:bg-red-100 transition"><i class="fas fa-trash"></i> Tarik / Hapus</button>
                             </div>
                             
-                            <!-- Panel Assign Driver -->
                             <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 shadow-inner">
                                 ${listPelamarHtml}
                                 <div class="flex flex-col gap-2">
@@ -441,6 +442,12 @@
             
             if(!adaMenunggu && containerMenunggu) containerMenunggu.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Tidak ada orderan menunggu.</p>';
             if(!adaJalan && containerJalan) containerJalan.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Belum ada orderan berjalan.</p>';
+        };
+
+        // Papan Orderan Aktif & Sedang Dijalankan
+        onValue(ref(db, 'orderan_aktif'), (snapshot) => {
+            globalDataOrderan = snapshot.val();
+            window.renderPapanOrderan();
         });
 
         // ==========================================
@@ -568,6 +575,11 @@
         onValue(ref(db, 'daftar_driver'), (snapshot) => {
             const data = snapshot.val();
             globalDataDriver = data || {};
+            
+            // Perintah untuk menyegarkan dropdown jika ada driver baru mendaftar atau sistem baru dimuat
+            if(typeof window.renderPapanOrderan === 'function') {
+                window.renderPapanOrderan();
+            }
             
             const container = document.getElementById('daftarSemuaDriver');
             container.innerHTML = '';
