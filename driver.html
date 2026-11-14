@@ -309,8 +309,8 @@
                 nama: profilDriver.namaLengkap, 
                 inisial: profilDriver.inisial 
             }).then(() => {
-                // Emoji kompleks dihapus dan diganti teks standar agar tidak muncul tanda tanya () di WA
-                let teksDriver = `Admin, saya MINAT ambil orderan ini!\n\n- Jemput: ${jemput}\n- Tujuan: ${tujuan}\n- Tarif: ${window.formatRupiah(tarifAngka)}\n\n- Driver: ${profilDriver.inisial}\n- Mobil: ${profilDriver.mobil}\n- Plat: ${profilDriver.plat}\n\nMohon di-ACC jika disetujui.`;
+                // Teks WA dibuat SUPER BERSIH 100% tanpa emoji/simbol aneh
+                let teksDriver = `*ADMIN, SAYA MINAT ORDERAN INI!*\n\nJemput: ${jemput}\nTujuan: ${tujuan}\nTarif: ${window.formatRupiah(tarifAngka)}\n\nDriver: ${profilDriver.inisial}\nMobil: ${profilDriver.mobil}\nPlat: ${profilDriver.plat}\n\nMohon di-ACC jika disetujui.`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
             });
         };
@@ -335,7 +335,7 @@
                     orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
                     localStorage.removeItem('orderanAktifMOSP');
                     
-                    let teksBatal = `Lapor Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang!\n\n(Dari Driver: ${profilDriver.inisial})`;
+                    let teksBatal = `*LAPORAN CANCEL*\n\nLapor Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang!\n\n(Dari Driver: ${profilDriver.inisial})`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
                     window.cekSistemAuth();
                 });
@@ -346,8 +346,9 @@
         // FUNGSI MODAL QRIS & LAPOR SELESAI
         // ==========================================
         window.bukaModalQris = function() {
-            // Tampilkan jumlah setoran yang harus dibayar di Modal
-            document.getElementById('teksNominalQris').innerText = window.formatRupiah(orderanAktif.potongan);
+            // Memastikan data potongan tidak kosong sebelum menampilkan QRIS
+            let pot = orderanAktif.potongan || 0;
+            document.getElementById('teksNominalQris').innerText = window.formatRupiah(pot);
             document.getElementById('modalQris').classList.remove('hidden');
         };
 
@@ -366,7 +367,7 @@
                 tarif: orderanAktif.tarif,
                 potongan: orderanAktif.potongan,
                 status: 'sukses',
-                statusTransfer: statusPembayaran, // Menyimpan status transfer ke database
+                statusTransfer: statusPembayaran,
                 driverNama: profilDriver.namaLengkap,
                 driverInisial: profilDriver.inisial,
                 waktu: new Date().getTime()
@@ -376,14 +377,14 @@
                 }
                 
                 let ruteSukses = orderanAktif.tujuan;
-                let potSukses = orderanAktif.potongan;
+                let potSukses = orderanAktif.potongan || 0;
                 
                 // BUKA KUNCI LAYAR
                 orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
                 localStorage.removeItem('orderanAktifMOSP');
 
-                // Teks laporan disederhanakan tanpa emoji aneh
-                let teksSelesai = `Lapor Admin, orderan arah ${ruteSukses} sudah SELESAI!\n\n- Potongan Admin: Rp ${potSukses.toLocaleString('id-ID')}\n- Status Bayar: *${statusPembayaran}*\n\n(Dari Driver: ${profilDriver.inisial})`;
+                // Teks laporan super bersih
+                let teksSelesai = `*LAPORAN SELESAI*\n\nArah: ${ruteSukses}\nPotongan Admin: Rp ${potSukses.toLocaleString('id-ID')}\nStatus Bayar: *${statusPembayaran}*\n\n(Dari Driver: ${profilDriver.inisial})`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
                 
                 window.cekSistemAuth();
