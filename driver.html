@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Driver - Mobil Online</title>
+    <title>Bursa Orderan Driver - Mobil Online</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,182 +16,168 @@
 </head>
 <body>
 
-    <div class="app-container pb-10">
+    <div class="app-container">
 
-        <!-- LAYAR 0: PENDAFTARAN DRIVER BARU -->
-        <div id="layar-auth" class="hidden min-h-screen bg-white px-6 py-10 flex flex-col justify-center">
-            <div class="text-center mb-8">
-                <div class="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-4xl mx-auto mb-4">
-                    <i class="fas fa-id-card"></i>
-                </div>
-                <h1 class="font-black text-2xl text-gray-800 uppercase">Registrasi Driver</h1>
-                <p class="text-xs text-gray-500 mt-1">Lengkapi data kendaraan Anda untuk mulai menerima orderan.</p>
-            </div>
-
-            <div class="space-y-4">
-                <div>
-                    <label class="text-xs font-bold text-gray-500 ml-1">Nama Lengkap (Sesuai KTP)</label>
-                    <input type="text" id="regNama" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Budi Santoso">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 ml-1">Nama Panggilan / Inisial (Tampil di Laporan)</label>
-                    <input type="text" id="regInisial" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Budi">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 ml-1">Jenis Kendaraan & Warna</label>
-                    <input type="text" id="regMobil" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-semibold outline-none focus:border-blue-500" placeholder="Contoh: Avanza Putih">
-                </div>
-                <div>
-                    <label class="text-xs font-bold text-gray-500 ml-1">Nomor Plat Polisi</label>
-                    <input type="text" id="regPlat" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm font-black uppercase outline-none focus:border-blue-500" placeholder="Contoh: DP 1234 XX">
+        <!-- ========================================== -->
+        <!-- VIEW 1: REGISTRASI DRIVER BARU             -->
+        <!-- ========================================== -->
+        <div id="view-register" class="hidden min-h-screen bg-gray-900 flex flex-col justify-center px-6 py-10 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -mr-20 -mt-20"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-red-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -ml-20 -mb-20"></div>
+            
+            <div class="relative z-10">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                        <i class="fas fa-car text-3xl text-gray-900"></i>
+                    </div>
+                    <h1 class="text-2xl font-black text-white">Halo, Mitra Driver!</h1>
+                    <p class="text-gray-400 text-sm mt-2">Daftarkan diri Anda untuk mulai menerima orderan dari pelanggan.</p>
                 </div>
                 
-                <button onclick="simpanPendaftaran()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-blue-700 active:scale-95 transition mt-4">
-                    <i class="fas fa-check-circle mr-1"></i> SIMPAN & MULAI NARIK
-                </button>
-            </div>
-        </div>
-        
-        <!-- LAYAR 1: BURSA ORDERAN -->
-        <div id="layar-bursa" class="hidden">
-            <div class="bg-gray-900 text-white p-5 text-center rounded-b-3xl shadow-lg relative overflow-hidden sticky top-0 z-40">
-                <div class="absolute -right-5 -top-5 opacity-10">
-                    <i class="fas fa-car text-[100px]"></i>
-                </div>
-                <div class="relative z-10 flex justify-between items-center text-left">
-                    <div>
-                        <h1 class="font-black text-xl uppercase tracking-widest text-yellow-400 drop-shadow-md">BURSA ORDERAN</h1>
-                        <p class="text-xs text-gray-300 mt-1"><i class="fas fa-user-check text-green-400"></i> Halo, <span id="sapaDriver" class="font-bold text-white">Driver</span></p>
-                    </div>
-                    <i class="fas fa-satellite-dish animate-pulse text-2xl text-blue-400"></i>
-                </div>
-                
-                <!-- Tombol Lihat Pendapatan -->
-                <button onclick="bukaLayarRiwayat()" class="relative z-10 mt-4 w-full bg-gray-800 border border-gray-700 text-yellow-400 text-xs py-2.5 rounded-xl font-bold hover:bg-gray-700 transition flex items-center justify-center gap-2 shadow-inner">
-                    <i class="fas fa-wallet text-lg"></i> LIHAT PENDAPATAN & RIWAYAT SAYA
-                </button>
-            </div>
-
-            <div class="p-5 mt-2">
-                <div id="daftarOrderanDriver" class="space-y-6">
-                    <div class="text-center mt-10">
-                        <i class="fas fa-circle-notch fa-spin text-4xl text-blue-500 mb-3"></i>
-                        <p class="text-gray-500 font-medium">Menghubungkan ke Pusat...</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- LAYAR 2: ORDERAN SAYA -->
-        <div id="layar-perjalanan" class="hidden">
-            <div class="bg-green-600 text-white p-5 text-center rounded-b-3xl shadow-lg sticky top-0 z-40">
-                <h1 class="font-black text-xl uppercase tracking-widest drop-shadow-md"><i class="fas fa-check-circle"></i> ORDERAN DIAMBIL</h1>
-                <p class="text-xs text-green-100 mt-1">Segera jemput penumpang Anda!</p>
-            </div>
-
-            <div class="p-5">
-                <div class="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded-xl mb-5 text-[11px] font-bold text-center shadow-sm animate-pulse">
-                    <i class="fas fa-exclamation-triangle mb-1 text-lg block"></i>
-                    ANDA TIDAK BISA MELIHAT ORDERAN BARU SEBELUM KLIK TOMBOL "SELESAI" ATAU "CANCEL" DI BAWAH INI!
-                </div>
-                
-                <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden mb-6">
-                    <div class="p-4 border-b border-gray-100 bg-blue-50">
-                        <p class="text-[10px] text-blue-500 font-bold uppercase tracking-wider mb-1">📍 Jemput Penumpang Di:</p>
-                        <p class="font-bold text-gray-800 text-sm mb-3" id="aktifJemput">-</p>
-                        <button onclick="bukaMaps('jemput')" class="bg-blue-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-blue-700 transition w-full flex items-center justify-center gap-2">
-                            <i class="fas fa-location-arrow"></i> Petunjuk Arah Jemput
-                        </button>
-                    </div>
-                    <div class="p-4 border-b border-gray-100 bg-red-50">
-                        <p class="text-[10px] text-red-500 font-bold uppercase tracking-wider mb-1">🏁 Antar Penumpang Ke:</p>
-                        <p class="font-bold text-gray-800 text-sm mb-3" id="aktifTujuan">-</p>
-                        <button onclick="bukaMaps('tujuan')" class="bg-red-600 text-white text-xs font-bold py-2 px-4 rounded-lg shadow-sm hover:bg-red-700 transition w-full flex items-center justify-center gap-2">
-                            <i class="fas fa-map-marked-alt"></i> Petunjuk Arah Antar
+                <div class="bg-white rounded-2xl p-6 shadow-2xl">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Lengkap (Sesuai KTP)</label>
+                            <input type="text" id="regNama" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none" placeholder="Contoh: Budi Santoso">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nama Panggilan / Inisial (Tampil di Laporan)</label>
+                            <input type="text" id="regInisial" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none" placeholder="Contoh: Pak Budi">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Jenis & Warna Mobil</label>
+                            <input type="text" id="regMobil" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none" placeholder="Contoh: Avanza Putih">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">Nomor Plat</label>
+                            <input type="text" id="regPlat" class="w-full bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-blue-500 outline-none uppercase" placeholder="Contoh: DP 1234 XX">
+                        </div>
+                        <button onclick="simpanRegistrasi()" class="w-full bg-blue-600 text-white font-black py-4 rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 active:scale-95 transition mt-4">
+                            SIMPAN & MULAI NARIK <i class="fas fa-arrow-right ml-2"></i>
                         </button>
                     </div>
                 </div>
-
-                <div class="bg-[#fefce8] p-5 rounded-2xl shadow-sm border border-yellow-200 mb-6">
-                    <h3 class="font-bold text-gray-800 text-sm mb-3 border-b border-yellow-200 pb-2">Tagihan ke Penumpang</h3>
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-medium text-gray-600">Tarif Total:</span>
-                        <span class="text-2xl font-black text-gray-800" id="aktifTarif">Rp 0</span>
-                    </div>
-                </div>
-
-                <div class="flex gap-2">
-                    <button onclick="batalkanOrderanWA()" class="w-1/3 bg-red-50 text-red-600 border border-red-200 font-bold py-3 rounded-xl shadow-sm hover:bg-red-100 active:scale-95 transition flex flex-col items-center justify-center gap-1 text-xs">
-                        <i class="fas fa-times-circle text-lg"></i> CANCEL
-                    </button>
-                    <button onclick="bukaModalQRIS()" class="w-2/3 bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2 text-lg">
-                        <i class="fas fa-flag-checkered text-2xl"></i> SELESAI (SUKSES)
-                    </button>
-                </div>
             </div>
         </div>
 
-        <!-- MODAL QRIS -->
-        <div id="modalQRIS" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70 p-4">
-            <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all">
-                <div class="bg-yellow-100 p-4 text-center border-b border-yellow-200">
-                    <h2 class="font-black text-lg text-yellow-800">🎉 ALHAMDULILLAH SELESAI</h2>
-                    <p class="text-xs text-yellow-700 mt-1" id="qrisSapaan">Terima kasih atas kerja keras Anda!</p>
-                </div>
-                
+        <!-- ========================================== -->
+        <!-- VIEW 2: BURSA ORDERAN (DAFTAR TUNGGU)      -->
+        <!-- ========================================== -->
+        <div id="view-bursa" class="hidden pb-10">
+            <div class="bg-gray-900 text-white rounded-b-3xl shadow-lg overflow-hidden sticky top-0 z-50">
                 <div class="p-5 text-center">
-                    <p class="text-sm text-gray-600 font-medium mb-1">Mohon transfer Potongan Admin (10%):</p>
-                    <p class="text-3xl font-black text-red-600 mb-4" id="aktifPotongan">Rp 0</p>
-                    
-                    <div class="bg-gray-100 p-2 rounded-xl mb-4 border border-gray-200 inline-block">
-                        <img src="qris.jpg" alt="QRIS Pembayaran" class="w-48 h-auto mx-auto rounded shadow-sm" onerror="this.src='https://via.placeholder.com/300x300?text=Gambar+QRIS+Belum+Diupload'">
-                    </div>
+                    <h1 class="font-black text-xl text-yellow-400 tracking-widest uppercase">Bursa Orderan</h1>
+                    <p class="text-xs text-gray-400 mt-1" id="headerNamaDriver">Menunggu memuat data...</p>
+                </div>
+            </div>
 
-                    <button onclick="laporSelesaiWA()" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2">
-                        <i class="fab fa-whatsapp text-lg"></i> LAPOR ADMIN & TUTUP
-                    </button>
+            <div class="p-4">
+                <!-- Tombol Buka Dompet Digital -->
+                <button onclick="bukaDompet()" class="w-full mb-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:shadow-xl transition">
+                    <i class="fas fa-wallet text-xl"></i> LIHAT PENDAPATAN & RIWAYAT SAYA
+                </button>
+
+                <div class="flex justify-between items-center mb-4 px-1">
+                    <h2 class="text-sm font-bold text-gray-700 uppercase tracking-wider"><i class="fas fa-satellite-dish text-blue-500"></i> Radar Orderan Baru</h2>
+                    <span class="flex h-3 w-3 relative">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    </span>
+                </div>
+                
+                <div id="daftarOrderanDriver" class="space-y-4">
+                    <p class="text-xs text-gray-400 text-center italic py-10">Memindai satelit... mencari orderan masuk.</p>
                 </div>
             </div>
         </div>
 
-        <!-- LAYAR 3: RIWAYAT & PENDAPATAN PRIBADI DRIVER -->
-        <div id="layar-riwayat" class="hidden pb-10">
-            <div class="bg-gray-900 text-white p-4 flex items-center gap-3 sticky top-0 z-40 rounded-b-3xl shadow-lg">
-                <button onclick="tutupLayarRiwayat()" class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-gray-700 transition shadow-inner">
+        <!-- ========================================== -->
+        <!-- VIEW 3: ORDERAN DIAMBIL (TERKUNCI)         -->
+        <!-- ========================================== -->
+        <div id="view-aktif" class="hidden min-h-screen bg-gray-100 pb-10 relative">
+            
+            <div class="bg-red-600 text-white p-4 text-center rounded-b-3xl shadow-lg relative">
+                <h1 class="font-black text-lg uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i class="fas fa-lock"></i> ORDERAN TERKUNCI
+                </h1>
+                <p class="text-[10px] text-red-100 mt-1">Anda tidak bisa melihat orderan lain sebelum menyelesaikannya.</p>
+            </div>
+            
+            <div class="p-4 mt-2">
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500 mb-4">
+                    <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-wider">Titik Jemput</p>
+                    <p class="font-bold text-gray-800 text-lg leading-tight" id="aktifJemput">-</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-red-500 mb-4">
+                    <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase tracking-wider">Tujuan Penumpang</p>
+                    <p class="font-bold text-gray-800 text-lg leading-tight" id="aktifTujuan">-</p>
+                </div>
+
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-8 relative overflow-hidden">
+                    <i class="fas fa-money-bill-wave absolute -right-5 -bottom-5 text-6xl text-yellow-200 opacity-50"></i>
+                    <h3 class="font-bold text-gray-800 text-sm mb-3 border-b border-yellow-200 pb-2 relative z-10">Rincian Pendapatan</h3>
+                    <div class="flex justify-between items-center mb-2 relative z-10">
+                        <span class="text-xs text-gray-600 font-semibold">Tarif Tagihan ke Penumpang</span>
+                        <span class="text-sm font-bold text-gray-800" id="aktifTarif">Rp 0</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-3 relative z-10">
+                        <span class="text-xs text-red-500 font-bold">Wajib Setor ke Admin (10%)</span>
+                        <span class="text-sm font-bold text-red-500" id="aktifPotongan">- Rp 0</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-3 border-t border-yellow-200 border-dashed relative z-10">
+                        <span class="text-sm font-black text-green-700 uppercase">Hak Anda (Bersih)</span>
+                        <span class="text-2xl font-black text-green-600" id="aktifBersih">Rp 0</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-8">
+                    <button onclick="batalkanOrderanWA()" class="w-full bg-red-100 text-red-600 font-bold py-4 rounded-xl shadow hover:bg-red-200 active:scale-95 transition border border-red-200 flex flex-col items-center justify-center gap-1">
+                        <i class="fas fa-times-circle text-2xl"></i>
+                        <span class="text-xs uppercase">BATAL (CANCEL)</span>
+                    </button>
+                    <button onclick="laporSelesaiWA()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex flex-col items-center justify-center gap-1">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                        <span class="text-xs uppercase tracking-wider">SELESAI SUKSES!</span>
+                    </button>
+                </div>
+                <p class="text-[10px] text-center text-gray-400 mt-4 px-4">Pilih BATAL jika penumpang tidak jadi berangkat atau hilang kontak. Pilih SELESAI jika penumpang telah sampai di tujuan.</p>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 4: DOMPET DIGITAL & RIWAYAT           -->
+        <!-- ========================================== -->
+        <div id="view-dompet" class="hidden pb-10 bg-gray-50 min-h-screen">
+            <div class="bg-blue-600 text-white p-4 flex items-center gap-3 sticky top-0 z-50 shadow-md">
+                <button onclick="tutupDompet()" class="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center hover:bg-blue-800 transition">
                     <i class="fas fa-arrow-left"></i>
                 </button>
                 <div class="flex-1">
-                    <h1 class="font-bold text-lg text-yellow-400">Dompet & Riwayat</h1>
-                    <p class="text-[10px] text-gray-400" id="riwayatSapaan">Menghitung pendapatan Anda...</p>
+                    <h1 class="font-bold text-lg">Dompet Digital Saya</h1>
                 </div>
             </div>
 
-            <div class="p-5">
-                <!-- Ringkasan Pendapatan Bersih -->
-                <h3 class="font-bold text-gray-800 text-sm mb-3"><i class="fas fa-hand-holding-usd text-green-500"></i> Pendapatan Bersih Saya (90%)</h3>
-                
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <div class="bg-green-50 rounded-xl p-3 border border-green-100 shadow-sm">
-                        <p class="text-[10px] text-green-600 font-bold uppercase">Hari Ini</p>
-                        <p class="font-black text-gray-800 text-lg mt-1" id="kuHariIni">Rp 0</p>
+            <div class="p-4 mt-2">
+                <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl shadow-lg p-5 text-white mb-6 relative overflow-hidden">
+                    <div class="absolute -right-4 -bottom-4 opacity-10"><i class="fas fa-wallet text-8xl"></i></div>
+                    <p class="text-xs font-semibold text-green-100 uppercase tracking-wider mb-1">Pendapatan Bersih (Hari Ini)</p>
+                    <h2 class="text-4xl font-black tracking-tighter" id="dompetHariIni">Rp 0</h2>
+                    
+                    <div class="flex justify-between mt-5 pt-4 border-t border-green-400/30">
+                        <div>
+                            <p class="text-[10px] text-green-100 uppercase">Bulan Ini</p>
+                            <p class="font-bold text-sm" id="dompetBulanIni">Rp 0</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-[10px] text-green-100 uppercase">Tahun Ini</p>
+                            <p class="font-bold text-sm" id="dompetTahunIni">Rp 0</p>
+                        </div>
                     </div>
-                    <div class="bg-blue-50 rounded-xl p-3 border border-blue-100 shadow-sm">
-                        <p class="text-[10px] text-blue-600 font-bold uppercase">Bulan Ini</p>
-                        <p class="font-black text-gray-800 text-lg mt-1" id="kuBulanIni">Rp 0</p>
-                    </div>
-                </div>
-                <div class="bg-purple-50 rounded-xl p-4 border border-purple-100 shadow-sm mb-6 flex justify-between items-center">
-                    <div>
-                        <p class="text-[10px] text-purple-600 font-bold uppercase">Total Tahun Ini</p>
-                        <p class="font-black text-gray-800 text-2xl mt-0.5" id="kuTahunIni">Rp 0</p>
-                    </div>
-                    <i class="fas fa-award text-4xl text-purple-200"></i>
                 </div>
 
-                <!-- Daftar Riwayat -->
-                <h3 class="font-bold text-gray-800 text-sm mb-3 border-b border-gray-200 pb-2"><i class="fas fa-route text-gray-500"></i> Riwayat Perjalanan Saya</h3>
-                <div id="listRiwayatKu" class="space-y-3">
-                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat data...</p>
+                <h3 class="font-bold text-gray-800 text-sm mb-3 border-b border-gray-200 pb-2"><i class="fas fa-history text-blue-500"></i> Riwayat Perjalanan Saya</h3>
+                <div id="dompetRiwayatList" class="space-y-3">
+                    <p class="text-xs text-gray-400 text-center italic py-4">Memuat riwayat...</p>
                 </div>
             </div>
         </div>
@@ -201,7 +187,7 @@
     <!-- KODE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-        import { getDatabase, ref, onValue, get, remove, push, set } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyD3LNakfEQDlpwp1RC4OBsF6GoEQ934ERo",
@@ -215,129 +201,85 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const NOMOR_WA_ADMIN = "6282122227535"; 
+        
+        const NOMOR_WA_ADMIN = "6282122227535";
 
         window.formatRupiah = function(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); };
 
+        // ==========================================
         // SISTEM AKUN & MEMORI LOKAL
+        // ==========================================
         let profilDriver = JSON.parse(localStorage.getItem('profilDriverMOSP'));
-        let orderanAktif = JSON.parse(localStorage.getItem('orderanAktifMOSP')) || { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+        let orderanAktif = JSON.parse(localStorage.getItem('orderanAktifMOSP')) || { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
 
         window.cekSistemAuth = function() {
             if (!profilDriver) {
-                // Tampilkan Layar Pendaftaran
-                document.getElementById('layar-auth').classList.remove('hidden');
-                document.getElementById('layar-bursa').classList.add('hidden');
-                document.getElementById('layar-perjalanan').classList.add('hidden');
+                document.getElementById('view-register').classList.remove('hidden');
+                document.getElementById('view-bursa').classList.add('hidden');
+                document.getElementById('view-aktif').classList.add('hidden');
+                document.getElementById('view-dompet').classList.add('hidden');
             } else {
-                document.getElementById('layar-auth').classList.add('hidden');
-                document.getElementById('sapaDriver').innerText = profilDriver.inisial;
-                document.getElementById('qrisSapaan').innerText = `Terima kasih, Bapak/Ibu ${profilDriver.inisial}!`;
+                document.getElementById('view-register').classList.add('hidden');
+                document.getElementById('view-dompet').classList.add('hidden');
+                document.getElementById('headerNamaDriver').innerText = `Mitra Aktif: ${profilDriver.inisial || profilDriver.namaLengkap} 🚗`;
                 
-                // Jika sudah login, cek apakah dia sedang bawa penumpang atau tidak
-                if (orderanAktif.jemput !== "") {
-                    document.getElementById('layar-bursa').classList.add('hidden');
-                    document.getElementById('layar-perjalanan').classList.remove('hidden');
+                if (orderanAktif && orderanAktif.idOrder) {
+                    // Pindah ke layar terkunci
+                    document.getElementById('view-bursa').classList.add('hidden');
+                    document.getElementById('view-aktif').classList.remove('hidden');
+                    
+                    // Isi rincian layar terkunci
                     document.getElementById('aktifJemput').innerText = orderanAktif.jemput;
                     document.getElementById('aktifTujuan').innerText = orderanAktif.tujuan;
                     document.getElementById('aktifTarif').innerText = window.formatRupiah(orderanAktif.tarif);
-                    document.getElementById('aktifPotongan').innerText = window.formatRupiah(orderanAktif.potongan);
+                    document.getElementById('aktifPotongan').innerText = "- " + window.formatRupiah(orderanAktif.potongan);
+                    document.getElementById('aktifBersih').innerText = window.formatRupiah(orderanAktif.tarif - orderanAktif.potongan);
                 } else {
-                    document.getElementById('layar-perjalanan').classList.add('hidden');
-                    document.getElementById('layar-bursa').classList.remove('hidden');
+                    document.getElementById('view-bursa').classList.remove('hidden');
+                    document.getElementById('view-aktif').classList.add('hidden');
                 }
             }
         };
 
-        // Simpan Profil
-        window.simpanPendaftaran = function() {
-            let nama = document.getElementById('regNama').value.trim();
-            let inisial = document.getElementById('regInisial').value.trim();
-            let mobil = document.getElementById('regMobil').value.trim();
-            let plat = document.getElementById('regPlat').value.trim().toUpperCase();
+        window.simpanRegistrasi = function() {
+            let n = document.getElementById('regNama').value.trim();
+            let i = document.getElementById('regInisial').value.trim();
+            let m = document.getElementById('regMobil').value.trim();
+            let p = document.getElementById('regPlat').value.trim();
 
-            if(!nama || !inisial || !mobil || !plat) {
-                alert("Mohon lengkapi semua data pendaftaran!"); return;
-            }
+            if(!n || !i || !m || !p) { alert("Mohon lengkapi semua data pendaftaran!"); return; }
 
-            profilDriver = {
-                namaLengkap: nama,
-                inisial: inisial,
-                mobil: mobil,
-                plat: plat,
-                waktuDaftar: new Date().getTime()
-            };
-
-            // Simpan permanen di memori HP
+            profilDriver = { namaLengkap: n, inisial: i, mobil: m, plat: p.toUpperCase() };
             localStorage.setItem('profilDriverMOSP', JSON.stringify(profilDriver));
-            
-            // Simpan juga ke Database Admin (Opsional, agar admin tahu ada driver daftar)
-            const driverRef = push(ref(db, 'daftar_driver'));
-            set(driverRef, profilDriver);
 
-            alert("Pendaftaran Berhasil! Selamat bekerja.");
+            // Daftarkan ke Database Admin
+            const pRef = push(ref(db, 'daftar_driver'));
+            set(pRef, {
+                namaLengkap: n,
+                inisial: i,
+                mobil: m,
+                plat: p.toUpperCase(),
+                waktuDaftar: new Date().getTime()
+            });
+
+            alert("Pendaftaran Berhasil! Selamat berburu orderan.");
             window.cekSistemAuth();
         };
 
-        // Jalankan pengecekan layar saat web dibuka
+        // Jalankan pengecekan awal saat halaman dimuat
         window.cekSistemAuth();
 
+        // ==========================================
+        // FUNGSI BURSA & MENGAMBIL ORDERAN
+        // ==========================================
         window.ambilOrderan = function(idOrder, jemput, tujuan, tarifAngka) {
-            const orderRef = ref(db, 'orderan_aktif/' + idOrder);
+            // HANYA MENGIRIM PESAN MINAT, TIDAK MENGHAPUS ORDERAN DARI DATABASE
+            let teksDriver = `Bos Admin, saya MINAT dan siap ambil orderan ini! ✋\n\n📍 *Jemput:* ${jemput}\n🏁 *Tujuan:* ${tujuan}\n💰 *Tarif:* ${window.formatRupiah(tarifAngka)}\n\n👤 *Driver:* ${profilDriver.inisial}\n🚗 *Kendaraan:* ${profilDriver.mobil}\n🪪 *Plat:* ${profilDriver.plat}\n\nMohon berikan orderan ini ke saya melalui sistem Web Admin jika disetujui.`;
             
-            get(orderRef).then((snapshot) => {
-                if (snapshot.exists()) {
-                    remove(orderRef);
-                    
-                    orderanAktif.jemput = jemput;
-                    orderanAktif.tujuan = tujuan;
-                    orderanAktif.tarif = tarifAngka;
-                    orderanAktif.potongan = tarifAngka * 0.10;
-
-                    localStorage.setItem('orderanAktifMOSP', JSON.stringify(orderanAktif));
-                    window.cekSistemAuth();
-
-                    // FORMAT PESAN WA YANG DILENGKAPI DATA MOBIL DRIVER (Super Keren!)
-                    let teksDriver = `Bos Admin, orderan ini SAYA YANG AMBIL ya! 🚘
-                    
-📍 *Jemput:* ${jemput}
-🏁 *Tujuan:* ${tujuan}
-💰 *Tarif:* ${window.formatRupiah(tarifAngka)}
-
-👤 *Driver:* ${profilDriver.inisial}
-🚗 *Kendaraan:* ${profilDriver.mobil}
-🪪 *Plat:* ${profilDriver.plat}
-
-Tolong kirimkan nomor WA pelanggan dan sampaikan identitas kendaraan saya di atas kepada penumpang agar mereka mudah mencari. Terima kasih!`;
-                    
-                    window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
-                } else {
-                    alert("MOHON MAAF 🙏\nOrderan ini baru saja diambil oleh driver lain.");
-                }
-            }).catch((error) => { alert("Gangguan sinyal."); });
+            window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
+            alert("Pesan pengajuan telah dikirim ke WA Admin.\n\nTunggu Admin menyetujui dan menugaskan orderan ini kepada Anda. Jika disetujui, layar ini akan otomatis berubah!");
         };
 
-        window.bukaMaps = function(jenis) {
-            let lokasi = jenis === 'jemput' ? orderanAktif.jemput : orderanAktif.tujuan;
-            window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(lokasi)}`, '_blank');
-        };
-
-        window.bukaModalQRIS = function() { document.getElementById('modalQRIS').classList.remove('hidden'); };
-
-        // FUNGSI BUKA/TUTUP LAYAR RIWAYAT
-        window.bukaLayarRiwayat = function() {
-            document.getElementById('layar-bursa').classList.add('hidden');
-            document.getElementById('layar-riwayat').classList.remove('hidden');
-            document.getElementById('riwayatSapaan').innerText = profilDriver.namaLengkap;
-            window.scrollTo(0,0);
-        };
-        
-        window.tutupLayarRiwayat = function() {
-            document.getElementById('layar-riwayat').classList.add('hidden');
-            document.getElementById('layar-bursa').classList.remove('hidden');
-        };
-
-        // FUNGSI MELAPOR KE DATABASE DENGAN NAMA DRIVER
         window.batalkanOrderanWA = function() {
             if(confirm("Yakin orderan ini dibatalkan oleh penumpang?")) {
                 const laporanRef = push(ref(db, 'laporan_selesai'));
@@ -348,15 +290,20 @@ Tolong kirimkan nomor WA pelanggan dan sampaikan identitas kendaraan saya di ata
                     potongan: orderanAktif.potongan,
                     status: 'batal',
                     driverNama: profilDriver.namaLengkap,
-                    driverInisial: profilDriver.inisial, // MENYELIPKAN NAMA DRIVER
+                    driverInisial: profilDriver.inisial,
                     waktu: new Date().getTime()
                 }).then(() => {
-                    localStorage.removeItem('orderanAktifMOSP');
+                    // Hapus dari daftar penugasan aktif
+                    if (orderanAktif.idOrder) {
+                        remove(ref(db, 'orderan_ditugaskan/' + orderanAktif.idOrder));
+                    }
                     let ruteBatal = orderanAktif.tujuan;
-                    orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
-                    window.cekSistemAuth();
+                    orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+                    localStorage.removeItem('orderanAktifMOSP');
+                    
                     let teksBatal = `Lapor Bos Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang! ❌\n(Dari Driver: ${profilDriver.inisial})`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
+                    window.cekSistemAuth();
                 });
             }
         };
@@ -370,94 +317,136 @@ Tolong kirimkan nomor WA pelanggan dan sampaikan identitas kendaraan saya di ata
                 potongan: orderanAktif.potongan,
                 status: 'sukses',
                 driverNama: profilDriver.namaLengkap,
-                driverInisial: profilDriver.inisial, // MENYELIPKAN NAMA DRIVER
+                driverInisial: profilDriver.inisial,
                 waktu: new Date().getTime()
             }).then(() => {
-                localStorage.removeItem('orderanAktifMOSP');
+                // Hapus dari daftar penugasan aktif
+                if (orderanAktif.idOrder) {
+                    remove(ref(db, 'orderan_ditugaskan/' + orderanAktif.idOrder));
+                }
                 let ruteSukses = orderanAktif.tujuan;
                 let potSukses = orderanAktif.potongan;
-                orderanAktif = { jemput: "", tujuan: "", tarif: 0, potongan: 0 };
-                window.cekSistemAuth();
-                document.getElementById('modalQRIS').classList.add('hidden');
+                orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
+                localStorage.removeItem('orderanAktifMOSP');
 
-                let teksSelesai = `Lapor Bos Admin, orderan arah ${ruteSukses} sudah SELESAI diantar! ✅\n\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sedang/sudah saya transfer.\n(Dari Driver: ${profilDriver.inisial})`;
+                let teksSelesai = `Lapor Bos Admin, orderan arah ${ruteSukses} sudah SELESAI diantar! ✅\n\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sudah/akan saya transfer.\n(Dari Driver: ${profilDriver.inisial})`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
+                window.cekSistemAuth();
             });
         };
 
-        // MENGAMBIL DATA RIWAYAT PENDAPATAN KHUSUS DRIVER INI SAJA
-        onValue(ref(db, 'laporan_selesai'), (snapshot) => {
-            const data = snapshot.val();
-            if (!profilDriver) return; // Jika belum login, abaikan
+        // ==========================================
+        // FUNGSI NAVIGASI DOMPET
+        // ==========================================
+        window.bukaDompet = function() {
+            document.getElementById('view-bursa').classList.add('hidden');
+            document.getElementById('view-dompet').classList.remove('hidden');
+            window.scrollTo(0,0);
+        }
+        window.tutupDompet = function() {
+            document.getElementById('view-dompet').classList.add('hidden');
+            document.getElementById('view-bursa').classList.remove('hidden');
+        }
 
+        // ==========================================
+        // SENSOR DATABASE (REALTIME)
+        // ==========================================
+
+        // 1. MENGAMBIL DATA RIWAYAT PENDAPATAN KHUSUS DRIVER INI SAJA
+        onValue(ref(db, 'laporan_selesai'), (snapshot) => {
+            if (!profilDriver) return;
+
+            const data = snapshot.val();
             let bersihHari = 0, bersihBulan = 0, bersihTahun = 0;
             const now = new Date();
-            const blnIni = now.getMonth();
-            const thnIni = now.getFullYear();
-            const tglIni = now.toDateString();
-
-            const containerRiwayat = document.getElementById('listRiwayatKu');
+            const containerRiwayat = document.getElementById('dompetRiwayatList');
             if(containerRiwayat) containerRiwayat.innerHTML = '';
+            
+            let adaRiwayat = false;
+            let arrRiwayat = [];
 
             if (data) {
-                let myHistory = [];
                 Object.keys(data).forEach(key => {
                     let trx = data[key];
-                    // FILTER: HANYA AMBIL DATA MILIK DRIVER INI
+                    // Hanya hitung jika orderan milik Driver ini
                     if (trx.driverNama === profilDriver.namaLengkap) {
-                        myHistory.push({ ...trx, id: key });
-                        
+                        adaRiwayat = true;
+                        arrRiwayat.push(trx);
+
                         if (trx.status !== 'batal') {
                             let d = new Date(trx.waktu);
-                            // Hitung PENDAPATAN BERSIH (Tarif - Potongan 10%)
-                            let bersih = parseInt(trx.tarif) - (parseInt(trx.potongan) || 0);
+                            let bersihOrderan = parseInt(trx.tarif) - parseInt(trx.potongan);
 
-                            if (d.toDateString() === tglIni) bersihHari += bersih;
-                            if (d.getMonth() === blnIni && d.getFullYear() === thnIni) bersihBulan += bersih;
-                            if (d.getFullYear() === thnIni) bersihTahun += bersih;
+                            if(d.toDateString() === now.toDateString()) { bersihHari += bersihOrderan; }
+                            if(d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) { bersihBulan += bersihOrderan; }
+                            if(d.getFullYear() === now.getFullYear()) { bersihTahun += bersihOrderan; }
                         }
                     }
                 });
 
-                // Update Angka di UI Layar Riwayat Driver
-                if(document.getElementById('kuHariIni')) document.getElementById('kuHariIni').innerText = window.formatRupiah(bersihHari);
-                if(document.getElementById('kuBulanIni')) document.getElementById('kuBulanIni').innerText = window.formatRupiah(bersihBulan);
-                if(document.getElementById('kuTahunIni')) document.getElementById('kuTahunIni').innerText = window.formatRupiah(bersihTahun);
+                document.getElementById('dompetHariIni').innerText = formatRupiah(bersihHari);
+                document.getElementById('dompetBulanIni').innerText = formatRupiah(bersihBulan);
+                document.getElementById('dompetTahunIni').innerText = formatRupiah(bersihTahun);
 
-                // Render Daftar Riwayat ke Layar Driver
-                myHistory.sort((a, b) => b.waktu - a.waktu); // Urutkan dari yang terbaru
-                if (myHistory.length > 0) {
-                    myHistory.forEach(trx => {
-                        let d = new Date(trx.waktu);
-                        let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
-                        let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200' : 'bg-white border-gray-100';
-                        let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
-                        let pendapatanTampil = trx.status === 'batal' ? 'Rp 0' : window.formatRupiah(parseInt(trx.tarif) - (parseInt(trx.potongan) || 0));
-                        let coret = trx.status === 'batal' ? 'line-through text-gray-400' : 'text-green-600';
+                arrRiwayat.sort((a, b) => b.waktu - a.waktu);
+                arrRiwayat.forEach(trx => {
+                    let d = new Date(trx.waktu);
+                    let wkt = d.toLocaleDateString('id-ID') + ' ' + d.toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'});
+                    let bgWarna = trx.status === 'batal' ? 'bg-red-50 border-red-200 opacity-70' : 'bg-white border-gray-200';
+                    let badge = trx.status === 'batal' ? '<span class="text-[9px] bg-red-100 text-red-600 px-2 py-1 rounded font-bold">BATAL</span>' : '<span class="text-[9px] bg-green-100 text-green-600 px-2 py-1 rounded font-bold">SUKSES</span>';
+                    
+                    if(containerRiwayat) containerRiwayat.innerHTML += `
+                    <div class="${bgWarna} border rounded-lg p-3 shadow-sm relative">
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1 pr-2">
+                                <p class="text-[10px] text-gray-500 mb-0.5">${wkt}</p>
+                                <p class="text-xs font-semibold text-gray-800 line-clamp-1">${trx.jemput} ➔ ${trx.tujuan}</p>
+                            </div>
+                            <div>${badge}</div>
+                        </div>
+                        <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2 mt-1">
+                            <p class="text-[10px] text-gray-500 font-bold">Tarif: Rp ${Number(trx.tarif).toLocaleString('id-ID')}</p>
+                            <p class="text-[11px] font-black ${trx.status === 'batal' ? 'text-gray-400 line-through' : 'text-green-600'}">+ Rp ${Number(trx.tarif - trx.potongan).toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>`;
+                });
 
-                        let itemHtml = `
-                        <div class="${bgWarna} border rounded-xl p-3 shadow-sm relative">
-                            <div class="flex justify-between items-start mb-2">
-                                <div class="flex-1 pr-2">
-                                    <p class="text-[10px] text-gray-500 mb-0.5">${wkt}</p>
-                                    <p class="text-xs font-semibold text-gray-800 line-clamp-1">${trx.jemput} ➔ ${trx.tujuan}</p>
-                                </div>
-                                <div>${badge}</div>
-                            </div>
-                            <div class="flex justify-between items-center border-t border-gray-100 border-dashed pt-2 mt-1">
-                                <p class="text-[10px] text-gray-500 font-bold">Tarif: ${window.formatRupiah(trx.tarif)}</p>
-                                <p class="text-[11px] font-black ${coret}">Bersih: ${pendapatanTampil}</p>
-                            </div>
-                        </div>`;
-                        if(containerRiwayat) containerRiwayat.innerHTML += itemHtml;
-                    });
-                } else {
+                if(!adaRiwayat) {
                     if(containerRiwayat) containerRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Anda belum memiliki riwayat perjalanan.</p>';
                 }
             }
         });
 
-        // BURSA ORDERAN REALTIME
+        // 2. MEMANTAU JIKA ADA ORDERAN YANG DITUGASKAN ADMIN KE DRIVER INI (SIHIR DIGITAL LELANG)
+        onValue(ref(db, 'orderan_ditugaskan'), (snapshot) => {
+            if (!profilDriver) return; 
+            const data = snapshot.val();
+            if (data) {
+                Object.keys(data).forEach(key => {
+                    let order = data[key];
+                    // Jika orderan ini atas nama saya, dan HP ini belum terkunci di orderan tersebut
+                    if (order.driverNama === profilDriver.namaLengkap && orderanAktif.idOrder !== key) {
+                        
+                        // Kunci orderan ke memori HP Driver
+                        orderanAktif = {
+                            idOrder: key,
+                            jemput: order.jemput,
+                            tujuan: order.tujuan,
+                            tarif: parseInt(order.tarif),
+                            potongan: parseInt(order.tarif) * 0.10
+                        };
+                        
+                        localStorage.setItem('orderanAktifMOSP', JSON.stringify(orderanAktif));
+                        
+                        // Tampilkan notifikasi ajaib dan pindah layar otomatis
+                        alert("🎉 SELAMAT! Admin telah menyetujui dan menugaskan orderan (" + order.jemput + ") kepada Anda!\n\nLayar akan dialihkan.");
+                        window.cekSistemAuth();
+                    }
+                });
+            }
+        });
+
+        // 3. BURSA ORDERAN REALTIME (TAMPILAN PUBLIK)
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderanDriver');
@@ -468,42 +457,41 @@ Tolong kirimkan nomor WA pelanggan dan sampaikan identitas kendaraan saya di ata
                 daftarKeys.forEach(key => {
                     let order = data[key];
                     let tarifAngka = parseInt(order.tarif);
-                    let bersihDriver = tarifAngka - (tarifAngka * 0.10);
+                    let potonganAdmin = tarifAngka * 0.10;
+                    let bersihDriver = tarifAngka - potonganAdmin;
 
-                    let item = `
-                    <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
-                        <div class="p-4 border-b border-gray-100">
-                            <div class="flex items-start mb-3">
-                                <div class="w-6 h-6 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center text-[10px] mr-3 mt-0.5"><i class="fas fa-map-marker-alt"></i></div>
-                                <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Penjemputan</p>
-                                    <p class="font-bold text-gray-800 text-sm">${order.jemput}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="w-6 h-6 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-[10px] mr-3 mt-0.5"><i class="fas fa-flag-checkered"></i></div>
-                                <div>
-                                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-0.5">Tujuan</p>
-                                    <p class="font-bold text-gray-800 text-sm">${order.tujuan}</p>
-                                </div>
-                            </div>
+                    container.innerHTML += `
+                    <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden relative">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-blue-500"></div>
+                        <div class="p-4 border-b border-gray-50">
+                            <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase">📍 Titik Jemput</p>
+                            <p class="font-bold text-gray-800 text-sm leading-tight">${order.jemput}</p>
+                        </div>
+                        <div class="p-4">
+                            <p class="text-[10px] text-gray-400 font-bold mb-1 uppercase">🏁 Tujuan</p>
+                            <p class="font-bold text-gray-800 text-sm leading-tight">${order.tujuan}</p>
                         </div>
                         <div class="bg-[#fefce8] p-4 flex justify-between items-center">
                             <span class="text-xs font-bold text-green-700 uppercase">Bersih Driver</span>
                             <span class="text-xl font-black text-green-600">${window.formatRupiah(bersihDriver)}</span>
                         </div>
                         <div class="p-3 bg-gray-50">
-                            <button onclick="ambilOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-green-500 text-white font-bold py-3 rounded-xl shadow hover:bg-green-600 active:scale-95 transition-all">
-                                AMBIL ORDERAN INI
+                            <button onclick="ambilOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-hand-paper"></i> MINAT ORDERAN INI
                             </button>
                         </div>
                     </div>`;
-                    container.innerHTML += item;
                 });
             } else {
-                container.innerHTML = `<div class="text-center mt-12 bg-white p-8 rounded-2xl shadow-sm"><i class="fas fa-mug-hot text-5xl text-gray-300 mb-4 block"></i><h3 class="font-bold text-gray-700 text-lg">Belum Ada Orderan</h3></div>`;
+                container.innerHTML = `
+                <div class="text-center py-10">
+                    <i class="fas fa-coffee text-4xl text-gray-300 mb-3 block"></i>
+                    <p class="text-sm text-gray-500 font-medium">Bursa orderan sedang sepi.</p>
+                    <p class="text-xs text-gray-400 mt-1">Sambil nunggu, bisa nyeruput kopi dulu ☕</p>
+                </div>`;
             }
         });
+
     </script>
 </body>
 </html>
