@@ -270,7 +270,7 @@
         }
 
         // ==========================================
-        // FUNGSI PAPAN ORDERAN
+        // FUNGSI PAPAN ORDERAN & ASSIGN DRIVER
         // ==========================================
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
@@ -304,10 +304,44 @@
         window.hapusOrderan = function(id) {
             if(confirm("Tarik orderan ini secara manual dari sistem?")) remove(ref(db, 'orderan_aktif/' + id));
         };
+        
         window.hapusLaporan = function(id) {
             if(confirm("Hapus data laporan ini? Total keuangan akan otomatis berkurang.")) remove(ref(db, 'laporan_selesai/' + id));
         };
 
+        // FUNGSI MENUGASKAN ORDERAN KE DRIVER (SISTEM LELANG)
+        window.tugaskanOrderan = function(idOrder, jemput, tujuan, tarif) {
+            let selectEl = document.getElementById('selDrv_' + idOrder);
+            let targetNama = selectEl.value;
+            
+            if(!targetNama) {
+                alert("Silakan pilih nama driver dari kotak pilihan terlebih dahulu!");
+                return;
+            }
+
+            if(confirm("Yakin ingin memberikan orderan ini kepada " + targetNama + "?\n\nLayar HP " + targetNama + " akan otomatis terkunci ke orderan ini.")) {
+                
+                // Cari data lengkap driver dari global
+                let targetDriver = Object.values(globalDataDriver).find(d => d.namaLengkap === targetNama);
+                if (!targetDriver) { alert("Data driver tidak ditemukan."); return; }
+                
+                // Buat data ke "orderan_ditugaskan"
+                set(ref(db, 'orderan_ditugaskan/' + idOrder), {
+                    jemput: jemput,
+                    tujuan: tujuan,
+                    tarif: tarif,
+                    waktu: new Date().getTime(),
+                    driverNama: targetDriver.namaLengkap,
+                    driverInisial: targetDriver.inisial || ''
+                }).then(() => {
+                    // Hapus orderan dari Papan Bursa Publik
+                    remove(ref(db, 'orderan_aktif/' + idOrder));
+                    alert("✅ SUKSES!\nOrderan telah ditugaskan ke " + (targetDriver.inisial || targetDriver.namaLengkap) + ".");
+                });
+            }
+        };
+
+        // Papan Orderan Aktif beserta Dropdown Pemilihan Driver
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('daftarOrderan');
@@ -315,15 +349,39 @@
 
             if (data) {
                 const daftarKeys = Object.keys(data).reverse(); 
+                
+                // Siapkan List `<option>` untuk Dropdown
+                let optionsDriver = `<option value="">-- Pilih Driver yang Disetujui --</option>`;
+                if(globalDataDriver) {
+                    Object.values(globalDataDriver).forEach(drv => {
+                        let namaTampil = drv.inisial ? `${drv.namaLengkap} (${drv.inisial})` : drv.namaLengkap;
+                        optionsDriver += `<option value="${drv.namaLengkap}">${namaTampil}</option>`;
+                    });
+                }
+
                 daftarKeys.forEach(key => {
                     let order = data[key];
                     container.innerHTML += `
-                    <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-100 relative">
+                    <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 relative mb-4">
                         <p class="text-xs font-bold text-gray-800 mb-1">📍 ${order.jemput}</p>
                         <p class="text-xs font-bold text-gray-800 mb-2">🏁 ${order.tujuan}</p>
-                        <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1">
+                        
+                        <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1 mb-3">
                             <span class="text-lg font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
-                            <button onclick="hapusOrderan('${key}')" class="bg-red-100 text-red-600 px-3 py-1 rounded text-xs font-bold hover:bg-red-200 transition"><i class="fas fa-trash"></i> Hapus</button>
+                            <button onclick="hapusOrderan('${key}')" class="bg-red-50 text-red-600 px-3 py-1.5 rounded text-[10px] font-bold border border-red-100 hover:bg-red-100 transition"><i class="fas fa-trash"></i> Tarik / Hapus</button>
+                        </div>
+                        
+                        <!-- Panel Assign Driver -->
+                        <div class="bg-blue-50 p-3 rounded-lg border border-blue-200 shadow-inner">
+                            <p class="text-[10px] font-bold text-blue-800 mb-1.5 uppercase tracking-wider"><i class="fas fa-hand-holding-medical"></i> Berikan Ke Driver:</p>
+                            <div class="flex flex-col gap-2">
+                                <select id="selDrv_${key}" class="w-full text-xs font-semibold text-gray-700 border border-blue-300 bg-white rounded-lg p-2 outline-none focus:border-blue-500">
+                                    ${optionsDriver}
+                                </select>
+                                <button onclick="tugaskanOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${order.tarif})" class="w-full bg-blue-600 text-white px-3 py-2.5 rounded-lg text-xs font-bold hover:bg-blue-700 shadow-md">
+                                    <i class="fas fa-check-circle"></i> KONFIRMASI & BERIKAN
+                                </button>
+                            </div>
                         </div>
                     </div>`;
                 });
@@ -469,7 +527,6 @@
                     let d = drv.waktuDaftar ? new Date(drv.waktuDaftar).toLocaleDateString('id-ID') : '-';
                     let namaUtama = drv.namaLengkap || 'Tanpa Nama';
                     
-                    // MENAMBAHKAN FORMAT INISIAL (DALAM KURUNG) BERWARNA BIRU
                     let namaInisial = drv.inisial ? ` <span class="text-blue-600 font-black">(${drv.inisial})</span>` : '';
                     let namaGabungan = namaUtama + namaInisial;
                     
@@ -500,8 +557,6 @@
             window.scrollTo(0, 0);
 
             currentDetailDriver = nama;
-            
-            // MENAMBAHKAN FORMAT INISIAL (DALAM KURUNG) BERWARNA BIRU DI DETAIL
             let inisialTeksDetail = inisial ? ` <span class="text-blue-600 font-black">(${inisial})</span>` : '';
             
             document.getElementById('detNamaDriver').innerHTML = nama + inisialTeksDetail;
@@ -556,7 +611,7 @@
         }
 
         // ==========================================
-        // FUNGSI UNDUH (DOWNLOAD) CSV
+        // FUNGSI UNDUH & SHARE
         // ==========================================
         window.eksportFileCSV = function(filename, csvData) {
             let blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
@@ -617,7 +672,7 @@
                 window.eksportFileCSV("Klasemen_Driver_Bulan_Ini.csv", csv);
             }
             else if (jenis === 'perorangan') {
-                window.unduhRiwayatDriver(); // Redirect ke fungsi unduh perorangan
+                window.unduhRiwayatDriver();
             }
         };
 
@@ -644,48 +699,34 @@
             window.eksportFileCSV(`Riwayat_Orderan_${currentDetailDriver.replace(/\s+/g, '_')}.csv`, csv);
         };
 
-        // ==========================================
-        // FUNGSI BAGIKAN KLASEMEN KE WHATSAPP GRUP
-        // ==========================================
         window.bagikanKlasemenWA = function() {
             const now = new Date();
             let stats = {};
             let totalSeluruhTrip = 0;
 
-            // Kumpulkan data orderan SUKSES di BULAN INI saja
             globalDataRiwayat.filter(trx => new Date(trx.waktu).getMonth() === now.getMonth() && new Date(trx.waktu).getFullYear() === now.getFullYear() && trx.status !== 'batal').forEach(trx => {
                 let namaDrv = trx.driverInisial || trx.driverNama || "Anonim";
                 if(!stats[namaDrv]) stats[namaDrv] = { totalTrip: 0, omzetKotor: 0 };
                 stats[namaDrv].totalTrip += 1;
-                // PENTING: Hanya ambil TARIF kotor, abaikan potongan
                 stats[namaDrv].omzetKotor += parseInt(trx.tarif); 
                 totalSeluruhTrip += 1;
             });
 
-            // Urutkan dari trip terbanyak
             let sortedDrivers = Object.keys(stats).sort((a,b) => stats[b].totalTrip - stats[a].totalTrip);
-
             if (sortedDrivers.length === 0) {
                 alert("Belum ada data orderan sukses bulan ini untuk dibagikan!");
                 return;
             }
 
             let teksWA = `🏆 *KLASEMEN PENDAPATAN DRIVER - BULAN INI* 🏆\n🚗 *Mobil Online Sidrap - Pinrang - Parepare*\n\n`;
-
             sortedDrivers.forEach((nama, index) => {
                 let medali = "🏅";
                 if (index === 0) medali = "🥇";
                 else if (index === 1) medali = "🥈";
                 else if (index === 2) medali = "🥉";
-
-                teksWA += `${medali} *${nama}*\n`;
-                teksWA += `└ ${stats[nama].totalTrip} Trip Sukses 🔥 | Total Orderan: Rp ${stats[nama].omzetKotor.toLocaleString('id-ID')}\n\n`;
+                teksWA += `${medali} *${nama}*\n└ ${stats[nama].totalTrip} Trip Sukses 🔥 | Total Orderan: Rp ${stats[nama].omzetKotor.toLocaleString('id-ID')}\n\n`;
             });
-
-            teksWA += `📊 *Total Keseluruhan Orderan Grup: ${totalSeluruhTrip} Trip*\n\n`;
-            teksWA += `Luar biasa pencapaian bulan ini! Terima kasih atas kerja keras rekan-rekan semua. Mari gaspol cari orderan hari ini, utamakan keselamatan! 🚀🔥`;
-
-            // Buka WhatsApp
+            teksWA += `📊 *Total Keseluruhan Orderan Grup: ${totalSeluruhTrip} Trip*\n\nLuar biasa pencapaian bulan ini! Terima kasih atas kerja keras rekan-rekan semua. Mari gaspol cari orderan hari ini, utamakan keselamatan! 🚀🔥`;
             window.open(`https://wa.me/?text=${encodeURIComponent(teksWA)}`, '_blank');
         };
     </script>
