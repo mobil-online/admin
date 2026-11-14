@@ -10,7 +10,7 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
-        .app-container { max-width: 480px; margin: 0 auto; background-color: #f8fafc; min-height: 100vh; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+        .app-container { max-width: 480px; margin: 0 auto; background-color: #f8fafc; min-height: 100vh; box-shadow: 0 0 15px rgba(0,0,0,0.1); position: relative; }
         .hidden { display: none !important; }
     </style>
 </head>
@@ -72,7 +72,6 @@
             </div>
 
             <div class="p-4">
-                <!-- Tombol Buka Dompet Digital -->
                 <button onclick="bukaDompet()" class="w-full mb-5 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 hover:shadow-xl transition">
                     <i class="fas fa-wallet text-xl"></i> LIHAT PENDAPATAN & RIWAYAT SAYA
                 </button>
@@ -121,7 +120,7 @@
                         <span class="text-sm font-bold text-gray-800" id="aktifTarif">Rp 0</span>
                     </div>
                     <div class="flex justify-between items-center mb-3 relative z-10">
-                        <span class="text-xs text-red-500 font-bold">Wajib Setor ke Admin (10%)</span>
+                        <span class="text-xs text-red-500 font-bold">Setoran Admin (10%)</span>
                         <span class="text-sm font-bold text-red-500" id="aktifPotongan">- Rp 0</span>
                     </div>
                     <div class="flex justify-between items-center pt-3 border-t border-yellow-200 border-dashed relative z-10">
@@ -135,12 +134,13 @@
                         <i class="fas fa-times-circle text-2xl"></i>
                         <span class="text-xs uppercase">BATAL (CANCEL)</span>
                     </button>
-                    <button onclick="laporSelesaiWA()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex flex-col items-center justify-center gap-1">
+                    <!-- TOMBOL SELESAI SEKARANG MEMBUKA MODAL QRIS -->
+                    <button onclick="bukaModalQris()" class="w-full bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-green-600 active:scale-95 transition flex flex-col items-center justify-center gap-1">
                         <i class="fas fa-check-circle text-2xl"></i>
                         <span class="text-xs uppercase tracking-wider">SELESAI SUKSES!</span>
                     </button>
                 </div>
-                <p class="text-[10px] text-center text-gray-400 mt-4 px-4">Pilih BATAL jika penumpang tidak jadi berangkat atau hilang kontak. Pilih SELESAI jika penumpang telah sampai di tujuan.</p>
+                <p class="text-[10px] text-center text-gray-400 mt-4 px-4">Pilih BATAL jika penumpang tidak jadi berangkat. Pilih SELESAI jika penumpang telah sampai di tujuan.</p>
             </div>
         </div>
 
@@ -182,6 +182,44 @@
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- POP-UP MODAL QRIS ADMIN (BARU)             -->
+        <!-- ========================================== -->
+        <div id="modalQris" class="hidden fixed inset-0 bg-gray-900/80 z-[100] flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+                <div class="bg-blue-600 text-white p-4 text-center">
+                    <h3 class="font-bold text-lg">Bayar Setoran Admin</h3>
+                </div>
+                <div class="p-5 text-center">
+                    <p class="text-sm text-gray-600 mb-1">Total yang harus Anda transfer:</p>
+                    <p class="text-3xl font-black text-blue-600 mb-4" id="teksNominalQris">Rp 0</p>
+                    
+                    <!-- AREA GAMBAR QRIS (Bisa diganti dengan Tag Image asli) -->
+                    <div class="bg-gray-100 rounded-xl p-4 mb-4 mx-auto w-48 h-48 flex items-center justify-center border-2 border-dashed border-gray-300">
+                        <div class="text-center">
+                            <!-- Ganti baris di bawah ini dengan kode <img src="..."> jika Anda punya link gambar QRIS -->
+                            <i class="fas fa-qrcode text-5xl text-gray-400 mb-2"></i>
+                            <p class="text-[10px] text-gray-500">Letakkan Gambar Barcode QRIS di sini</p>
+                        </div>
+                    </div>
+
+                    <p class="text-xs text-gray-500 mb-5">Silakan pilih status pembayaran Anda untuk dikirimkan ke Admin.</p>
+
+                    <div class="space-y-3">
+                        <button onclick="prosesSelesaiWA('SUDAH TRANSFER')" class="w-full bg-green-500 text-white font-bold py-3.5 rounded-xl shadow hover:bg-green-600 transition flex justify-center items-center gap-2">
+                            <i class="fas fa-check-circle"></i> SAYA SUDAH TRANSFER
+                        </button>
+                        <button onclick="prosesSelesaiWA('BELUM / NANTI')" class="w-full bg-white text-gray-700 border border-gray-300 font-bold py-3.5 rounded-xl hover:bg-gray-50 transition">
+                            SAYA TRANSFER NANTI SAJA
+                        </button>
+                        <button onclick="tutupModalQris()" class="w-full text-red-500 text-xs font-bold py-2 hover:underline mt-2">
+                            Tutup & Batal Selesaikan Order
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <!-- KODE FIREBASE -->
@@ -207,7 +245,7 @@
         window.formatRupiah = function(angka) { return "Rp " + Number(angka).toLocaleString('id-ID'); };
 
         // ==========================================
-        // SISTEM AKUN & MEMORI LOKAL
+        // SISTEM AKUN & MEMORI LOKAL (KUNCI LAYAR)
         // ==========================================
         let profilDriver = JSON.parse(localStorage.getItem('profilDriverMOSP'));
         let orderanAktif = JSON.parse(localStorage.getItem('orderanAktifMOSP')) || { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
@@ -224,11 +262,10 @@
                 document.getElementById('headerNamaDriver').innerText = `Mitra Aktif: ${profilDriver.inisial || profilDriver.namaLengkap} 🚗`;
                 
                 if (orderanAktif && orderanAktif.idOrder) {
-                    // Pindah ke layar terkunci
+                    // KUNCI LAYAR KE ORDERAN AKTIF
                     document.getElementById('view-bursa').classList.add('hidden');
                     document.getElementById('view-aktif').classList.remove('hidden');
                     
-                    // Isi rincian layar terkunci
                     document.getElementById('aktifJemput').innerText = orderanAktif.jemput;
                     document.getElementById('aktifTujuan').innerText = orderanAktif.tujuan;
                     document.getElementById('aktifTarif').innerText = window.formatRupiah(orderanAktif.tarif);
@@ -252,34 +289,28 @@
             profilDriver = { namaLengkap: n, inisial: i, mobil: m, plat: p.toUpperCase() };
             localStorage.setItem('profilDriverMOSP', JSON.stringify(profilDriver));
 
-            // Daftarkan ke Database Admin
             const pRef = push(ref(db, 'daftar_driver'));
             set(pRef, {
-                namaLengkap: n,
-                inisial: i,
-                mobil: m,
-                plat: p.toUpperCase(),
-                waktuDaftar: new Date().getTime()
+                namaLengkap: n, inisial: i, mobil: m, plat: p.toUpperCase(), waktuDaftar: new Date().getTime()
             });
 
             alert("Pendaftaran Berhasil! Selamat berburu orderan.");
             window.cekSistemAuth();
         };
 
-        // Jalankan pengecekan awal saat halaman dimuat
         window.cekSistemAuth();
 
         // ==========================================
-        // FUNGSI BURSA & MENGAMBIL ORDERAN
+        // FUNGSI MENGAMBIL & MEMBATALKAN ORDERAN
         // ==========================================
         window.minatOrderan = function(idOrder, jemput, tujuan, tarifAngka) {
-            // MENGIRIM PESAN MINAT DAN TERCATAT SEBAGAI PELAMAR DI DATABASE
             const pelamarRef = push(ref(db, `orderan_aktif/${idOrder}/pelamar`));
             set(pelamarRef, { 
                 nama: profilDriver.namaLengkap, 
                 inisial: profilDriver.inisial 
             }).then(() => {
-                let teksDriver = `Bos Admin, saya MINAT dan siap ambil orderan ini! ✋\n\n📍 *Jemput:* ${jemput}\n🏁 *Tujuan:* ${tujuan}\n💰 *Tarif:* ${window.formatRupiah(tarifAngka)}\n\n👤 *Driver:* ${profilDriver.inisial}\n🚗 *Kendaraan:* ${profilDriver.mobil}\n🪪 *Plat:* ${profilDriver.plat}\n\nMohon konfirmasi di Web Admin.`;
+                // Emoji kompleks dihapus dan diganti teks standar agar tidak muncul tanda tanya () di WA
+                let teksDriver = `Admin, saya MINAT ambil orderan ini!\n\n- Jemput: ${jemput}\n- Tujuan: ${tujuan}\n- Tarif: ${window.formatRupiah(tarifAngka)}\n\n- Driver: ${profilDriver.inisial}\n- Mobil: ${profilDriver.mobil}\n- Plat: ${profilDriver.plat}\n\nMohon di-ACC jika disetujui.`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksDriver)}`, '_blank');
             });
         };
@@ -297,7 +328,6 @@
                     driverInisial: profilDriver.inisial,
                     waktu: new Date().getTime()
                 }).then(() => {
-                    // Hapus dari bursa aktif
                     if (orderanAktif.idOrder) {
                         remove(ref(db, 'orderan_aktif/' + orderanAktif.idOrder));
                     }
@@ -305,14 +335,30 @@
                     orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
                     localStorage.removeItem('orderanAktifMOSP');
                     
-                    let teksBatal = `Lapor Bos Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang! ❌\n(Dari Driver: ${profilDriver.inisial})`;
+                    let teksBatal = `Lapor Admin, orderan ke arah ${ruteBatal} DICANCEL oleh penumpang!\n\n(Dari Driver: ${profilDriver.inisial})`;
                     window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksBatal)}`, '_blank');
                     window.cekSistemAuth();
                 });
             }
         };
 
-        window.laporSelesaiWA = function() {
+        // ==========================================
+        // FUNGSI MODAL QRIS & LAPOR SELESAI
+        // ==========================================
+        window.bukaModalQris = function() {
+            // Tampilkan jumlah setoran yang harus dibayar di Modal
+            document.getElementById('teksNominalQris').innerText = window.formatRupiah(orderanAktif.potongan);
+            document.getElementById('modalQris').classList.remove('hidden');
+        };
+
+        window.tutupModalQris = function() {
+            document.getElementById('modalQris').classList.add('hidden');
+        };
+
+        window.prosesSelesaiWA = function(statusPembayaran) {
+            // Tutup modal terlebih dahulu
+            window.tutupModalQris();
+            
             const laporanRef = push(ref(db, 'laporan_selesai'));
             set(laporanRef, {
                 jemput: orderanAktif.jemput,
@@ -320,21 +366,26 @@
                 tarif: orderanAktif.tarif,
                 potongan: orderanAktif.potongan,
                 status: 'sukses',
+                statusTransfer: statusPembayaran, // Menyimpan status transfer ke database
                 driverNama: profilDriver.namaLengkap,
                 driverInisial: profilDriver.inisial,
                 waktu: new Date().getTime()
             }).then(() => {
-                // Hapus dari bursa aktif
                 if (orderanAktif.idOrder) {
                     remove(ref(db, 'orderan_aktif/' + orderanAktif.idOrder));
                 }
+                
                 let ruteSukses = orderanAktif.tujuan;
                 let potSukses = orderanAktif.potongan;
+                
+                // BUKA KUNCI LAYAR
                 orderanAktif = { idOrder: "", jemput: "", tujuan: "", tarif: 0, potongan: 0 };
                 localStorage.removeItem('orderanAktifMOSP');
 
-                let teksSelesai = `Lapor Bos Admin, orderan arah ${ruteSukses} sudah SELESAI diantar! ✅\n\n💸 Potongan admin sebesar *${window.formatRupiah(potSukses)}* sudah/akan saya transfer.\n(Dari Driver: ${profilDriver.inisial})`;
+                // Teks laporan disederhanakan tanpa emoji aneh
+                let teksSelesai = `Lapor Admin, orderan arah ${ruteSukses} sudah SELESAI!\n\n- Potongan Admin: Rp ${potSukses.toLocaleString('id-ID')}\n- Status Bayar: *${statusPembayaran}*\n\n(Dari Driver: ${profilDriver.inisial})`;
                 window.open(`https://wa.me/${NOMOR_WA_ADMIN}?text=${encodeURIComponent(teksSelesai)}`, '_blank');
+                
                 window.cekSistemAuth();
             });
         };
@@ -356,10 +407,8 @@
         // SENSOR DATABASE (REALTIME)
         // ==========================================
 
-        // 1. MENGAMBIL DATA RIWAYAT PENDAPATAN KHUSUS DRIVER INI SAJA
         onValue(ref(db, 'laporan_selesai'), (snapshot) => {
             if (!profilDriver) return;
-
             const data = snapshot.val();
             let bersihHari = 0, bersihBulan = 0, bersihTahun = 0;
             const now = new Date();
@@ -372,11 +421,9 @@
             if (data) {
                 Object.keys(data).forEach(key => {
                     let trx = data[key];
-                    // Hanya hitung jika orderan milik Driver ini
                     if (trx.driverNama === profilDriver.namaLengkap) {
                         adaRiwayat = true;
                         arrRiwayat.push(trx);
-
                         if (trx.status !== 'batal') {
                             let d = new Date(trx.waktu);
                             let bersihOrderan = parseInt(trx.tarif) - parseInt(trx.potongan);
@@ -415,13 +462,12 @@
                     </div>`;
                 });
 
-                if(!adaRiwayat) {
-                    if(containerRiwayat) containerRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Anda belum memiliki riwayat perjalanan.</p>';
+                if(!adaRiwayat && containerRiwayat) {
+                    containerRiwayat.innerHTML = '<p class="text-xs text-gray-400 text-center italic py-4">Anda belum memiliki riwayat perjalanan.</p>';
                 }
             }
         });
 
-        // 2. BURSA ORDERAN REALTIME & PENUGASAN (SISTEM LELANG)
         onValue(ref(db, 'orderan_aktif'), (snapshot) => {
             if (!profilDriver) return;
             const data = snapshot.val();
@@ -438,19 +484,18 @@
                     let potonganAdmin = tarifAngka * 0.10;
                     let bersihDriver = tarifAngka - potonganAdmin;
 
-                    // CEK JIKA ORDERAN DITUGASKAN KE SAYA -> KUNCI LAYAR
+                    // Kunci layar jika ditugaskan
                     if (order.status === 'ditugaskan' && order.pemenang === profilDriver.namaLengkap && orderanAktif.idOrder !== key) {
                         orderanAktif = {
                             idOrder: key, jemput: order.jemput, tujuan: order.tujuan,
                             tarif: tarifAngka, potongan: potonganAdmin
                         };
                         localStorage.setItem('orderanAktifMOSP', JSON.stringify(orderanAktif));
-                        alert("🎉 SELAMAT! Admin telah menyetujui dan memberikan orderan ke " + order.tujuan + " kepada Anda!\n\nLayar akan segera dialihkan.");
+                        alert("🎉 SELAMAT! Admin telah menyetujui dan memberikan orderan kepada Anda!");
                         window.cekSistemAuth();
-                        return; // Jangan render di bursa
+                        return; 
                     }
 
-                    // CEK STATUS PELAMAR
                     let isPelamar = false;
                     if (order.pelamar) {
                         Object.values(order.pelamar).forEach(p => {
@@ -458,7 +503,6 @@
                         });
                     }
 
-                    // TENTUKAN TAMPILAN TOMBOL & VISUAL
                     let buttonHTML = "";
                     let extraClass = "";
 
@@ -470,7 +514,6 @@
                             buttonHTML = `<button onclick="minatOrderan('${key}', '${order.jemput.replace(/'/g, "\\'")}', '${order.tujuan.replace(/'/g, "\\'")}', ${tarifAngka})" class="w-full bg-blue-500 text-white font-bold py-3.5 rounded-xl shadow-md hover:bg-blue-600 active:scale-95 transition-all flex items-center justify-center gap-2"><i class="fas fa-hand-paper"></i> ✋ MINAT ORDERAN INI</button>`;
                         }
                     } else if (order.status === 'ditugaskan') {
-                        // Jika ditugaskan ke orang lain
                         if (order.pemenang !== profilDriver.namaLengkap) {
                             adaOrderanTampil = true;
                             extraClass = "opacity-60 grayscale";
