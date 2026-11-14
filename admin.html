@@ -142,7 +142,7 @@
                     <!-- List Driver akan diinjeksi via JS -->
                 </div>
                 
-                <!-- TOMBOL BARU UNTUK SHARE KE GRUP WA -->
+                <!-- TOMBOL SHARE KE GRUP WA -->
                 <button onclick="bagikanKlasemenWA()" class="w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-white font-black py-3.5 rounded-xl shadow-lg hover:shadow-xl active:scale-95 transition flex justify-center items-center gap-2">
                     <i class="fab fa-whatsapp text-2xl"></i> BAGIKAN KLASEMEN KE GRUP
                 </button>
@@ -467,13 +467,19 @@
 
                 driverArray.forEach(drv => {
                     let d = drv.waktuDaftar ? new Date(drv.waktuDaftar).toLocaleDateString('id-ID') : '-';
+                    let namaUtama = drv.namaLengkap || 'Tanpa Nama';
+                    
+                    // MENAMBAHKAN FORMAT INISIAL (DALAM KURUNG) BERWARNA BIRU
+                    let namaInisial = drv.inisial ? ` <span class="text-blue-600 font-black">(${drv.inisial})</span>` : '';
+                    let namaGabungan = namaUtama + namaInisial;
+                    
                     container.innerHTML += `
-                    <div onclick="lihatDetailDriver('${drv.namaLengkap.replace(/'/g, "\\'")}', '${drv.mobil.replace(/'/g, "\\'")}', '${drv.plat.replace(/'/g, "\\'")}')" class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center gap-3 cursor-pointer hover:bg-blue-50 border-l-4 border-l-blue-500 transition">
+                    <div onclick="lihatDetailDriver('${(drv.namaLengkap || '').replace(/'/g, "\\'")}', '${(drv.mobil || '').replace(/'/g, "\\'")}', '${(drv.plat || '').replace(/'/g, "\\'")}', '${(drv.inisial || '').replace(/'/g, "\\'")}')" class="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-center gap-3 cursor-pointer hover:bg-blue-50 border-l-4 border-l-blue-500 transition">
                         <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black shadow-inner">
-                            ${drv.inisial ? drv.inisial.substring(0,2).toUpperCase() : 'DR'}
+                            ${drv.inisial ? drv.inisial.substring(0,2).toUpperCase() : (drv.namaLengkap ? drv.namaLengkap.substring(0,2).toUpperCase() : 'DR')}
                         </div>
                         <div class="flex-1">
-                            <p class="font-bold text-sm text-gray-800">${drv.namaLengkap || 'Tanpa Nama'}</p>
+                            <p class="font-bold text-sm text-gray-800">${namaGabungan}</p>
                             <p class="text-[10px] text-gray-500 mt-0.5">🚗 ${drv.mobil} • <span class="font-bold uppercase">${drv.plat}</span></p>
                         </div>
                         <div class="text-right">
@@ -488,13 +494,17 @@
             }
         });
 
-        window.lihatDetailDriver = function(nama, mobil, plat) {
+        window.lihatDetailDriver = function(nama, mobil, plat, inisial) {
             document.getElementById('driverListContainer').classList.add('hidden');
             document.getElementById('driverDetailContainer').classList.remove('hidden');
             window.scrollTo(0, 0);
 
             currentDetailDriver = nama;
-            document.getElementById('detNamaDriver').innerText = nama;
+            
+            // MENAMBAHKAN FORMAT INISIAL (DALAM KURUNG) BERWARNA BIRU DI DETAIL
+            let inisialTeksDetail = inisial ? ` <span class="text-blue-600 font-black">(${inisial})</span>` : '';
+            
+            document.getElementById('detNamaDriver').innerHTML = nama + inisialTeksDetail;
             document.getElementById('detMobilDriver').innerText = `🚗 ${mobil} | 🪪 ${plat}`;
 
             let riwayatDriver = globalDataRiwayat.filter(trx => trx.driverNama === nama);
