@@ -284,28 +284,55 @@
         // ==========================================
         // FUNGSI PAPAN ORDERAN & ASSIGN DRIVER
         // ==========================================
+        function escapeHtml(teks) {
+            if (!teks) return "";
+            return String(teks)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         window.prosesTeks = function() {
             let teks = document.getElementById('boxPaste').value;
             try {
-                let jemput = teks.match(/\*Jemput:\*\s*(.*)/)[1];
-                let tujuan = teks.match(/\*Tujuan:\*\s*(.*)/)[1];
+                let jemput = teks.match(/\*Jemput:\*\s*(.*)/i)[1];
+                let tujuan = teks.match(/\*Tujuan:\*\s*(.*)/i)[1];
                 let jarak = teks.match(/\*Jarak:\*\s*(.*)\s*KM/i)[1];
-                let tarifKotor = teks.match(/\*Tarif:\*\s*\*Rp\s*(.*)\*/)[1];
-                let tarifAngka = tarifKotor.replace(/\./g, '').trim();
+                let tarifKotor = teks.match(/\*Tarif:\*\s*\*?Rp\s*([0-9.,]+)\*?/i)[1];
+                let tarifAngka = tarifKotor.replace(/[.,]/g, '').trim();
+
+                // Membaca detail tambahan dari form pemesanan terbaru (aman juga untuk format lama)
+                let matchTipe = teks.match(/\*Tipe:\*\s*(.*)/i);
+                let matchWaktuJemput = teks.match(/\*Waktu Jemput:\*\s*(.*)/i);
+                let matchJadwalPulang = teks.match(/\*Jadwal Pulang:\*\s*(.*)/i);
+                let matchPenumpang = teks.match(/\*Penumpang:\*\s*(.*)/i);
+                let matchCatatan = teks.match(/\*Catatan:\*\s*([\s\S]*?)(?:\n\s*\n\s*Mohon|\nMohon|$)/i);
+
+                let tipe = matchTipe ? matchTipe[1].trim() : "Sekali Jalan";
+                let waktuJemput = matchWaktuJemput ? matchWaktuJemput[1].trim() : "Sekarang (Langsung Jemput)";
+                let jadwalPulang = matchJadwalPulang ? matchJadwalPulang[1].trim() : "";
+                let penumpang = matchPenumpang ? matchPenumpang[1].trim() : "-";
+                let catatan = matchCatatan ? matchCatatan[1].trim() : "-";
 
                 const orderRef = push(ref(db, 'orderan_aktif'));
                 set(orderRef, {
+                    tipe: tipe,
                     jemput: jemput.trim(),
                     tujuan: tujuan.trim(),
                     jarak: jarak.trim(),
                     tarif: tarifAngka,
+                    waktuJemput: waktuJemput,
+                    jadwalPulang: jadwalPulang,
+                    penumpang: penumpang,
+                    catatan: catatan,
                     status: 'menunggu',
                     waktu: new Date().getTime()
                 }).then(() => {
-                    alert("✅ BERHASIL! Orderan telah masuk ke Papan Pengumuman.");
                     document.getElementById('boxPaste').value = ""; 
-                }).catch((error) => { alert("❌ Gagal menyimpan."); });
-            } catch (error) { alert("❌ Gagal membaca teks! Pastikan format utuh dari Web Pelanggan."); }
+                }).catch((error) => { console.error("Gagal menyimpan orderan:", error); });
+            } catch (error) { console.error("Format teks tidak terbaca:", error); }
         };
 
         window.bagikanKeGrup = function() {
@@ -387,6 +414,23 @@
 
                 daftarKeys.forEach(key => {
                     let order = data[key];
+                    let isPP = (order.tipe || "").toLowerCase().includes("pulang pergi") || (order.tipe || "").toLowerCase().includes("pp");
+                    let badgeTipe = isPP
+                        ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 border border-orange-200"><i class="fas fa-exchange-alt mr-1"></i>${escapeHtml(order.tipe)}</span>`
+                        : `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200"><i class="fas fa-arrow-right mr-1"></i>${escapeHtml(order.tipe || 'Sekali Jalan')}</span>`;
+
+                    let infoTambahanHtml = `
+                        <div class="flex flex-wrap gap-1.5 mb-2.5">
+                            ${badgeTipe}
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700"><i class="fas fa-route mr-1 text-gray-500"></i>${escapeHtml(order.jarak || '-')} KM</span>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-700"><i class="fas fa-users mr-1 text-gray-500"></i>${escapeHtml(order.penumpang || '-')}</span>
+                        </div>
+                        <div class="bg-gray-50 border border-gray-200 rounded-lg p-2.5 mb-2 space-y-1 text-[11px] text-gray-700">
+                            <p><i class="fas fa-clock text-blue-500 w-4"></i> <span class="text-gray-500">Jemput:</span> <span class="font-bold">${escapeHtml(order.waktuJemput || 'Sekarang (Langsung Jemput)')}</span></p>
+                            ${order.jadwalPulang ? `<p><i class="fas fa-undo-alt text-orange-500 w-4"></i> <span class="text-gray-500">Pulang:</span> <span class="font-bold text-orange-700">${escapeHtml(order.jadwalPulang)}</span></p>` : ''}
+                            ${order.catatan && order.catatan !== '-' ? `<p><i class="fas fa-comment-dots text-green-600 w-4"></i> <span class="text-gray-500">Catatan:</span> <span class="font-semibold text-gray-800 whitespace-pre-line">${escapeHtml(order.catatan)}</span></p>` : ''}
+                        </div>
+                    `;
                     
                     if (order.status === 'menunggu') {
                         adaMenunggu = true;
@@ -404,8 +448,9 @@
 
                         if(containerMenunggu) containerMenunggu.innerHTML += `
                         <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200 relative mb-4">
-                            <p class="text-xs font-bold text-gray-800 mb-1">📍 ${order.jemput}</p>
-                            <p class="text-xs font-bold text-gray-800 mb-2">🏁 ${order.tujuan}</p>
+                            <p class="text-xs font-bold text-gray-800 mb-1">📍 ${escapeHtml(order.jemput)}</p>
+                            <p class="text-xs font-bold text-gray-800 mb-2">🏁 ${escapeHtml(order.tujuan)}</p>
+                            ${infoTambahanHtml}
                             
                             <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1 mb-3">
                                 <span class="text-lg font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
@@ -428,9 +473,10 @@
                         adaJalan = true;
                         if(containerJalan) containerJalan.innerHTML += `
                         <div class="bg-white rounded-lg p-3 shadow-sm border border-blue-200 relative mb-4">
-                            <p class="text-[10px] font-bold text-blue-600 mb-2 uppercase tracking-wider"><i class="fas fa-car"></i> DIAMBIL OLEH: ${order.pemenangInisial}</p>
-                            <p class="text-xs font-semibold text-gray-800 mb-1">📍 ${order.jemput}</p>
-                            <p class="text-xs font-semibold text-gray-800 mb-2">🏁 ${order.tujuan}</p>
+                            <p class="text-[10px] font-bold text-blue-600 mb-2 uppercase tracking-wider"><i class="fas fa-car"></i> DIAMBIL OLEH: ${escapeHtml(order.pemenangInisial)}</p>
+                            <p class="text-xs font-semibold text-gray-800 mb-1">📍 ${escapeHtml(order.jemput)}</p>
+                            <p class="text-xs font-semibold text-gray-800 mb-2">🏁 ${escapeHtml(order.tujuan)}</p>
+                            ${infoTambahanHtml}
                             <div class="flex justify-between items-center border-t border-gray-100 pt-2 mt-1">
                                 <span class="text-sm font-black text-red-600">Rp ${Number(order.tarif).toLocaleString('id-ID')}</span>
                                 <button onclick="batalTugaskan('${key}')" class="bg-red-50 text-red-600 px-2 py-1 rounded text-[9px] font-bold border border-red-100 hover:bg-red-100 transition"><i class="fas fa-times"></i> Batal Penugasan</button>
